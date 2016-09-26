@@ -1,8 +1,8 @@
 DesiTelly.bundle
 ===================
 Plex Media Server plug-in designed for Desi Entertainment
-[Plex Support thread] (TBA)
-[Plex Support thread (old)] (https://forums.plex.tv/discussion/107492/req-indian-tv-shows/p1)
+- [Plex Support thread] (TBA)
+- [Plex Support thread (old)] (https://forums.plex.tv/discussion/107492/req-indian-tv-shows/p1)
 
 System Requirements
 ===================
