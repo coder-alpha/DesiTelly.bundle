@@ -215,7 +215,7 @@ def EpisodeLinksMenu(url, title, type):
 			#Log("date: " + date)
 			# Get video source url and thumb
 			link = common_fnc.GetTvURLSource(link,url,date)
-			Log("Video Site: " + videosite + " Link: " + link + " Thumb: " + thumb)
+			#Log("Video Site: " + videosite + " Link: " + link + " Thumb: " + thumb)
 		except:
 			continue
 			

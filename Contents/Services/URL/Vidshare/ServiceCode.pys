@@ -24,8 +24,6 @@ def MetadataObjectForURL(url):
 		page_data = HTML.ElementFromURL(url)
 		img = page_data.xpath("//img/@src")[0]
 		thumb = img
-		
-		# http://103.43.94.69/l7z7btxjdqnhgn4vfj2bga6cqdroexc376gj3a6mmo4emsbchtortpisujva/v.flv
 	except:
 		thumb = url
 
@@ -34,7 +32,7 @@ def MetadataObjectForURL(url):
 	
 	return VideoClipObject(
 		title = title,
-		summary = summary + '\n\n',
+		summary = summary,
 		art = Resource.ContentsOfURLWithFallback([thumb,ART]),
 		thumb = Resource.ContentsOfURLWithFallback([thumb,COVER])
 	)
@@ -46,7 +44,7 @@ def MediaObjectsForURL(url):
 	
 	return [
 		MediaObject(
-			container = Container.MP4,
+			container = Container.FLV,
 			video_codec = VideoCodec.H264,
 			audio_codec = AudioCodec.AAC,
 			audio_channels = 2,
@@ -55,7 +53,7 @@ def MediaObjectsForURL(url):
 			parts = [PartObject(key=Callback(PlayVideo, url=url, quality='hd'))]
 		),
 		MediaObject(
-			container = Container.MP4,
+			container = Container.FLV,
 			video_codec = VideoCodec.H264,
 			audio_codec = AudioCodec.AAC,
 			audio_channels = 2,
@@ -71,11 +69,11 @@ def PlayVideo(url, quality):
 
 	try:
 		page_data = HTML.ElementFromURL(url)
-		stuff = page_data.xpath("//script//text()")[2]
+		stuff = page_data.xpath(".//script[contains(text(),'vplayer')]//text()")[0]
 		if quality == 'HD':
-			match = re.search('file:"(.+?)" *,label:"HD"', stuff)
+			match = re.search(',{file:"(.+?)\",label:"HD', stuff)
 		else:
-			match = re.search('file:"(.+?)" *,label:"SD"', stuff)
+			match = re.search('file:"(.+?)\",label:"SD', stuff)
 		url0 = match.group(1)
 		
 		# http://103.43.94.69/l7z7btxjdqnhgn4vfj2bga6cqdroexc376gj3a6mmo4emsbchtortpisujva/v.flv
