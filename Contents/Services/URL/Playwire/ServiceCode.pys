@@ -1,0 +1,138 @@
+import string, re
+
+HTTP_HEADERS = {
+	'Accept	text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+	'Accept-Encoding:	gzip, deflate',
+	'Accept-Language:	en-US,en;q=0.5',
+	'Connection:		keep-alive',
+	'Referer:		http://www.playwire.com',
+	'User-Agent:		Mozilla/5.0 (Windows NT 6.1; WOW64; rv:33.0) Gecko/20100101 Firefox/33.0'
+}
+
+ART = 'http://i.imgur.com/GwSnkxE.jpg'
+COVER = 'http://i.imgur.com/0snKSZt.png'
+
+########################################################################################
+def NormalizeURL(url):
+
+	return url
+
+####################################################################################################
+def MetadataObjectForURL(url):
+	
+	thumb = ''
+	parts1 = []
+	parts2 = []
+	durr = 0
+	
+	json = JSON.ObjectFromURL(url)
+	try:
+		thumb = json['content']['poster']
+	except:
+		thumb=''
+		
+	f4m_url = json['content']['media']['f4m']
+	xml = XML.ElementFromURL(f4m_url)
+	
+	burl = xml.xpath('//a:baseURL/text()', namespaces={'a': 'http://ns.adobe.com/f4m/1.0'})[0]
+	vurls = xml.xpath('//a:media/@url', namespaces={'a': 'http://ns.adobe.com/f4m/1.0'})
+	dur = xml.xpath('//a:duration/text()', namespaces={'a': 'http://ns.adobe.com/f4m/1.0'})[0]
+	
+	bitrate = [1200,1000]
+	reso = ['480','270']
+	
+	try:
+		durr = int(int(dur) * 1000)
+	except:
+		pass
+	
+	po1 = PartObject(key=Callback(PlayVideo, url=burl + '/' + vurls[0]),duration = int(int(dur) * 1000))
+	parts1.append(po1)
+	po2 = PartObject(key=Callback(PlayVideo, url=burl + '/' + vurls[1]),duration = int(int(dur) * 1000))
+	parts2.append(po2)
+
+	title = 'Playwire Redirect Page'
+	summary = 'Summary info Page'
+	
+	mo1 = MediaObject(
+		container = Container.MP4,
+		video_codec = VideoCodec.H264,
+		video_resolution = str(reso[0]),
+		audio_codec = AudioCodec.AAC,
+		bitrate = bitrate[0],
+		audio_channels = 2,
+		optimized_for_streaming = True,
+		parts = parts1,
+		duration = durr
+	)
+	
+	mo2 = MediaObject(
+		container = Container.MP4,
+		video_codec = VideoCodec.H264,
+		video_resolution = str(reso[1]),
+		audio_codec = AudioCodec.AAC,
+		bitrate = bitrate[1],
+		audio_channels = 2,
+		optimized_for_streaming = True,
+		parts = parts2,
+		duration = durr
+	)
+	
+	vc = VideoClipObject()
+	vc.title = title
+	vc.thumb = Resource.ContentsOfURLWithFallback([thumb, COVER])
+	vc.art = Resource.ContentsOfURLWithFallback([thumb, ART])
+	vc.summary = summary
+	vc.items.append(mo1)
+	vc.items.append(mo2)
+	
+	return vc
+	
+####################################################################################################
+def MediaObjectsForURL(url):
+
+	json = JSON.ObjectFromURL(url)
+
+	f4m_url = json['content']['media']['f4m']
+	xml = XML.ElementFromURL(f4m_url)
+	
+	burl = xml.xpath('//a:baseURL/text()', namespaces={'a': 'http://ns.adobe.com/f4m/1.0'})[0]
+	vurls = xml.xpath('//a:media/@url', namespaces={'a': 'http://ns.adobe.com/f4m/1.0'})
+	dur = xml.xpath('//a:duration/text()', namespaces={'a': 'http://ns.adobe.com/f4m/1.0'})[0]
+
+	reso = ['480','270']
+	bitrate = [1200,1000]
+		
+	mo1 = MediaObject(
+			container = Container.MP4,
+			video_codec = VideoCodec.H264,
+			video_resolution = str(reso[0]),
+			audio_codec = AudioCodec.AAC,
+			bitrate = bitrate[0],
+			duration = int(int(dur) * 1000),
+			audio_channels = 2,
+			optimized_for_streaming = True,
+			parts = [PartObject(key=Callback(PlayVideo, url=burl + '/' + vurls[0]))]
+		)
+	mo2 = MediaObject(
+			container = Container.MP4,
+			video_codec = VideoCodec.H264,
+			video_resolution = str(reso[1]),
+			audio_codec = AudioCodec.AAC,
+			bitrate = bitrate[1],
+			duration = int(int(dur) * 1000),
+			audio_channels = 2,
+			optimized_for_streaming = True,
+			parts = [PartObject(key=Callback(PlayVideo, url=burl + '/' + vurls[1]))]
+		)
+	
+	return [mo1,mo2]
+
+####################################################################################################
+@indirect
+def PlayVideo(url):
+	
+	try:
+		return IndirectResponse(VideoClipObject, key=url)
+	except:
+		raise Ex.MediaNotAvailable

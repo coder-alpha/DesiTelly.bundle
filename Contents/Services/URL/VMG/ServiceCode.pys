@@ -1,0 +1,84 @@
+import string, re, urllib2
+
+HTTP_HEADERS = {
+	'Accept	text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+	'Accept-Encoding:	gzip, deflate',
+	'Accept-Language:	en-US,en;q=0.5',
+	'Connection:		keep-alive',
+	'Referer:		http://www.vmg.host',
+	'User-Agent:		Mozilla/5.0 (Windows NT 6.1; WOW64; rv:33.0) Gecko/20100101 Firefox/33.0'
+}
+
+ART = 'http://i.imgur.com/GwSnkxE.jpg'
+COVER = 'http://i.imgur.com/0snKSZt.png'
+
+########################################################################################
+def NormalizeURL(url):
+
+	return url
+
+####################################################################################################
+def MetadataObjectForURL(url):
+	
+	page_data = HTML.ElementFromURL(url)
+	script = page_data.xpath(".//body//script//text()")[0]
+	p = re.compile(ur'http[s]?:\\/\\/(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
+	thumb = re.findall(p, script)[0]
+	thumb = urllib2.unquote(thumb).decode('utf8').replace('\\','')
+	
+	title = 'VMG Redirect Page'
+	summary = 'Summary info Page'
+	
+	return VideoClipObject(
+		title = title,
+		summary = summary + '\n\n',
+		art = Resource.ContentsOfURLWithFallback([thumb, ART]),
+		thumb = Resource.ContentsOfURLWithFallback([thumb, COVER])
+	)
+	
+####################################################################################################
+def MediaObjectsForURL(url):
+
+	#Log("url-----------" + url)
+	page_data = HTML.ElementFromURL(url)
+	script = page_data.xpath(".//body//script//text()")[0]
+	p = re.compile(ur'http[s]?:\\/\\/(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
+	urls = re.findall(p, script)
+	urls = sorted(urls, reverse=True)
+	
+	#Log(urls)
+	
+	mos = []
+	for url in urls:
+		res = None
+		if '240p' in url:
+			res = '240'
+		elif '480p' in url:
+			res = '480'
+		elif '720p' in url:
+			res = '720'
+			
+		if 'thumbnail' not in url:
+			url = urllib2.unquote(url).decode('utf8').replace('\\','')
+			#Log(url)
+			
+			mo = MediaObject(
+				container = Container.MP4,
+				video_codec = VideoCodec.H264,
+				audio_codec = AudioCodec.AAC,
+				audio_channels = 2,
+				video_resolution = res,
+				optimized_for_streaming = True,
+				parts = [PartObject(key=Callback(PlayVideo, url=url))]
+			)
+			mos.append(mo)
+	
+
+	return mos
+
+####################################################################################################
+@indirect
+def PlayVideo(url):
+
+	return IndirectResponse(VideoClipObject, key=url)
+	
