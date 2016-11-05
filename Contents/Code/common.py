@@ -1,6 +1,6 @@
 ################################################################################
 TITLE = L('Title')
-VERSION = '0.02' # Release notation (x.y - where x is major and y is minor)
+VERSION = '0.03' # Release notation (x.y - where x is major and y is minor)
 GITHUB_REPOSITORY = 'coder-alpha/DesiTelly.bundle'
 PREFIX = "/video/desitelly"
 ################################################################################
@@ -35,6 +35,7 @@ MTVIN = 'MTV India'
 CHANNELVV = 'Channel V'
 BINDASS = 'Bindass'
 COLORSTVCHAN = 'Colors Tv Channel'
+COLORS_TV = 'Colors Tv'
 SABTVCHAN = 'SabTv Channel'
 SONYPAL = 'Sony Pal'
 DDNATIONAL = 'DD National'
@@ -107,6 +108,7 @@ def GetSupportedChannels():
 		XINXMEDIA.lower(),
 		NDTV.lower(),
 		COLORSTV.lower(),
+		COLORS_TV.lower(),
 		MTVIN.lower(),
 		CHANNELVV.lower(),
 		BINDASS.lower(),
@@ -171,7 +173,7 @@ def GetThumb(channel):
 		icon = R('icon-saharaone.png')
 	elif channel == STARJALSHA.lower():
 		icon = R('icon-starjalsha.png')
-	elif channel == COLORS.lower() or channel == COLORSTV.lower() or channel == COLORSTVCHAN.lower():
+	elif channel == COLORS.lower() or channel == COLORSTV.lower() or channel == COLORSTVCHAN.lower() or channel == COLORS_TV.lower():
 		icon = R('icon-colors.png')
 	elif channel == SABTV.lower() or channel == SABTVCHAN.lower():
 		icon = R('icon-sabtv.png')
