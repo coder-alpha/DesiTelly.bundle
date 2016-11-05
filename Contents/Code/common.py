@@ -1,6 +1,6 @@
 ################################################################################
 TITLE = L('Title')
-VERSION = '0.03' # Release notation (x.y - where x is major and y is minor)
+VERSION = '0.04' # Release notation (x.y - where x is major and y is minor)
 GITHUB_REPOSITORY = 'coder-alpha/DesiTelly.bundle'
 PREFIX = "/video/desitelly"
 ################################################################################
@@ -83,6 +83,9 @@ SONYPAL2 = 'Pal'
 MTVIN2 = 'MTV'
 ZINDAGITV2 = 'Zindagi'
 
+#DesiTashan
+TV_NEWS = 'TV News'
+
 VALID_SOURCES_DOMAIN = ['dailymotion.','playwire.','vidshare.','openload.','playu.', 'cloudy.', 'vmg.']
 VALID_SOURCES = ['Dailymotion','Flash Player','Flash','Playwire','Letwatch','Openload','PlayU','StreamHD','HDStream']
 VALID_SOURCES_ICONS = ['dailymotion','playwire','playwire','playwire','letwatchus','openload','playu','vmg','vmg']
@@ -153,7 +156,8 @@ def GetSupportedChannels():
 		SONYPAL2.lower(),
 		MTVIN2.lower(),
 		ZINDAGITV2.lower(),
-		EPIC.lower()
+		EPIC.lower(),
+		TV_NEWS.lower()
 	]
 
 ####################################################################################################
