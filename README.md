@@ -15,7 +15,7 @@ System Requirements
 		- Plex Home Theater
 		- Plex/Web
 		- Samsung Plex App
-		- Android Kit-Kat (Samsung Galaxy S3)
+		- Android M (Samsung Galaxy S6)
 		- iOS (Apple iPhone6)
 
 How To Install
@@ -34,7 +34,7 @@ How To Install
 
 Important Notes
 ==============
-- Currently only Dailymotion, Flash/Playwire, PlayU, Letwatch/Vidshare & VMG host is supported well.
+- Currently only Dailymotion, Flash/Playwire, PlayU, Letwatch/Vidshare, VidWatch, WatchVideo & VMG host is supported well.
 - More hosts can be enabled using USS (read below under Preferences/Options setting). [UnSupportedServices.bundle](https://github.com/Twoure/UnSupportedServices.bundle) must be installed and updated to dev branch to use Openload host when available for video links
 - Movie support for DesiRulez is included but YMMV (installing USS is highly recommended)
 - This plugin builds from my older version located [here] (https://github.com/coder-alpha/DesiTV.bundle)

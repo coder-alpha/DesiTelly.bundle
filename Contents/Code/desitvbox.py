@@ -243,7 +243,7 @@ def EpisodeLinksMenu(url, title, type):
 					originally_available_at = originally_available_at))
 					
 					
-	if Prefs['consolidate_parts'] and bool_do_use_parts_feature and len(links) > 0 and 'disabled' not in links:
+	if Prefs['consolidate_parts'] and link.find('playwire.') > -1 and bool_do_use_parts_feature and len(links) > 0 and 'disabled' not in links:
 		videosite = unicode(str(videosite).split('– Part')[0].strip() + ' - ' + str(len(links)) + ' Parts')
 		oc.add(VideoClipObject(
             title = videosite,

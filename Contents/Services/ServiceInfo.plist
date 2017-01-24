@@ -3,27 +3,11 @@
 <dict>
 	<key>URL</key>
 	<dict>
-		<key>DesiTelly</key>
+	<key>DesiTelly</key>
 		<dict>
 			<key>URLPatterns</key>
 			<array>
 				<string>^desitelly\:\/\/.+</string>
-			</array>
-		</dict>
-		<key>Vidshare</key>
-		<dict>
-			<key>URLPatterns</key>
-			<array>
-				<string>http://vidshare.us</string>
-				<string>http://vidshare.us/.+</string>
-			</array>
-		</dict>
-	<key>Playwire</key>
-		<dict>
-			<key>URLPatterns</key>
-			<array>
-				<string>http://config.playwire.com</string>
-				<string>http://config.playwire.com/.+</string>
 			</array>
 		</dict>
 	<key>Cloudy</key>
@@ -34,6 +18,14 @@
 				<string>http://www.cloudy.ec/.+</string>
 				<string>https://www.cloudy.ec</string>
 				<string>https://www.cloudy.ec/.+</string>
+			</array>
+		</dict>
+	<key>Playwire</key>
+		<dict>
+			<key>URLPatterns</key>
+			<array>
+				<string>http://config.playwire.com</string>
+				<string>http://config.playwire.com/.+</string>
 			</array>
 		</dict>
 	<key>PlayU</key>
@@ -52,12 +44,34 @@
 				<string>http://dl1.playu.net/.+</string>
 			</array>
 		</dict>
+	<key>Vidshare</key>
+		<dict>
+			<key>URLPatterns</key>
+			<array>
+				<string>http://vidshare.us</string>
+				<string>http://vidshare.us/.+</string>
+			</array>
+		</dict>
+	<key>VidWatch</key>
+		<dict>
+			<key>URLPatterns</key>
+			<array>
+				<string>http://vidwatch.+</string>
+			</array>
+		</dict>
 	<key>VMG</key>
 		<dict>
 			<key>URLPatterns</key>
 			<array>
 				<string>http://www.vmg.host</string>
 				<string>http://www.vmg.host/.+</string>
+			</array>
+		</dict>
+	<key>WatchVideo</key>
+		<dict>
+			<key>URLPatterns</key>
+			<array>
+				<string>http://watchvideo.+</string>
 			</array>
 		</dict>
 	</dict>
