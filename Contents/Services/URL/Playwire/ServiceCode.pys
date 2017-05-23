@@ -78,7 +78,7 @@ def MetadataObjectForURL(url):
 		duration = durr
 	)
 	
-	vc = VideoClipObject()
+	vc = MovieObject()
 	vc.title = title
 	vc.thumb = Resource.ContentsOfURLWithFallback([thumb, COVER])
 	vc.art = Resource.ContentsOfURLWithFallback([thumb, ART])

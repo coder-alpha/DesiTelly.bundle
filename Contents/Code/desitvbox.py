@@ -174,6 +174,8 @@ def PlayerLinksMenu(url, title, type):
 	# If there are no channels, warn the user
 	if len(oc) == 0:
 		return ObjectContainer(header=title, message=L('PlayerWarning'))
+		
+	oc.objects.sort(key=lambda obj: obj.title, reverse=False)
 
 	return oc
 

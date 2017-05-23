@@ -15,7 +15,7 @@ def MetadataObjectForURL(url):
 		thumb1 = COVER
 		thumb2 = ART
 
-	return VideoClipObject(
+	return MovieObject(
 		title=d['title'],
 		thumb=Resource.ContentsOfURLWithFallback(thumb1, COVER),
 		art=Resource.ContentsOfURLWithFallback(thumb2, ART),

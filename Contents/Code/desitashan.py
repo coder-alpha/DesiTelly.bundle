@@ -3,7 +3,7 @@ import messages
 import re
 
 SITETITLE = 'Desi-Tashan'
-SITEURL = 'http://www.desi-tashan.com/'
+SITEURL = 'http://www.desi-tashan.ms/'
 SITETHUMB = 'icon-desitashan.png'
 
 PREFIX = common.PREFIX
@@ -21,7 +21,7 @@ def ChannelsMenu(url):
 
 	html = HTML.ElementFromURL(url)
 
-	for item in html.xpath("//ul[@id='menu-indian-menu']//li//a"):
+	for item in html.xpath("//ul[@id='menu-3']//li//a"):
 		try:
 			# Channel title
 			channel = item.xpath("text()")[0]
@@ -68,7 +68,7 @@ def ShowsMenu(url, title):
 	#Log("Shows Menu: " + url + ":" + title)
 	html = HTML.ElementFromURL(url)
 	
-	for item in html.xpath("//div[contains(@class,'fusion-one-fourth fusion-layout-column fusion-spacing-yes ')]//div[@class='fusion-column-wrapper']//h4//a"):
+	for item in html.xpath(".//*[@id='td-outer-wrap']//div//td//li//a"):
 		#Log("item "+ etree.tostring(item, pretty_print=True))
 		try:
 			# Show title
@@ -103,39 +103,31 @@ def EpisodesMenu(url, title):
 
 	html = HTML.ElementFromURL(pageurl)
 	
-	for item in html.xpath("//div[contains(@class,'fusion-one-fourth fusion-layout-column fusion-spacing-yes ')]//div[@class='fusion-column-wrapper']//h4//a"):
+	for item in html.xpath(".//div[@class='td-block-span6']//h3[@class='entry-title td-module-title']//a"):
 		try:
 			# Episode title
 			episode = unicode(str(item.xpath("text()")[0].strip()))
-			if("Written Episode" in episode):
-				continue
+			
 			# episode link
 			link = item.xpath("@href")[0]
 			if link.startswith("http") == False:
 				link = SITEURL + link.lstrip('/')
-			#Log("Episode: " + episode + " Link: " + link)
+			Log("Episode: " + episode + " Link: " + link)
 		except:
 			continue
 
 		# Add the found item to the collection
-		if 'Written Episode' not in episode:
+		if 'Watch'.lower() in episode.lower():
+			episode = episode.replace(' Video Watch...','')
 			oc.add(PopupDirectoryObject(key=Callback(PlayerLinksMenu, url=link, title=episode, type=L('Tv')), title=episode))
 	
 	# Find the total number of pages
 	next_page = ' '
 	try:
-		next_page = html.xpath(".//div[@class='pagination clearfix']//a[@class='pagination-next']/@href")[0]
+		next_page = html.xpath("(.//div[@class='page-nav td-pb-padding-side']//a[not (@class='page') and not (@class='last')]//@href)[last()]")
+		oc.add(DirectoryObject(key=Callback(EpisodesMenu, url=next_page, title=title), title=L('Pages')))
 	except:
 		pass
-	if next_page.startswith("http") == False:
-		if (len(next_page.split('/')) == 3):
-			next_page = pageurl + next_page
-		else:
-			next_page = SITEURL + next_page.lstrip('/')
-
-	# Add the next page link if exists
-	if ' ' not in next_page:
-		oc.add(DirectoryObject(key=Callback(EpisodesMenu, url=next_page, title=title), title=L('Pages')))
 	
 	# If there are no channels, warn the user
 	if len(oc) == 0:
@@ -173,9 +165,9 @@ def PlayerLinksMenu(url, title, type):
 	if '/images/xfuture.png.pagespeed.ic.WVkcd7CGfW.png' in content:
 		return ObjectContainer(header=title, message=L('ComingSoonWarning'))
 	
-	sources = html.xpath(".//h2[@class='vidLinks'][contains(text(),'HD')]//text()")
-	if len(sources) == 0:
-		sources = html.xpath(".//h2[contains(text(),'HD')]//text()")
+	sources = html.xpath(".//div[@class='td-post-content td-pb-padding-side']//span[contains(text(),'HD')]//text()")
+	#if len(sources) == 0:
+	#	sources = html.xpath(".//h2[contains(text(),'HD')]//text()")
 	for source in sources:
 		s_source, i = common_fnc.GetArrayItemMatchInString(common.VALID_SOURCES, source.lower(), False)
 		if s_source <> None:
@@ -196,6 +188,8 @@ def PlayerLinksMenu(url, title, type):
 # If there are no channels, warn the user
 	if len(oc) == 0:
 		return ObjectContainer(header=title, message=L('PlayerWarning'))
+		
+	oc.objects.sort(key=lambda obj: obj.title, reverse=False)
 
 	return oc
 
@@ -260,7 +254,8 @@ def EpisodeLinksMenu(url, title, type, thumb):
 
 def GetParts(html, keyword):
 
-	xpath_str = ".//h2[@class='vidLinks'][contains(text(),'"+keyword+"')]/following-sibling::p[@class='vidLinksContent'][1]//a"
+	xpath_str = ".//div[@class='td-post-content td-pb-padding-side']//span[contains(text(),'"+keyword+"')]//following::p[1]//a"
+	
 	#Log(xpath_str)
 	try:
 		items = html.xpath(xpath_str)

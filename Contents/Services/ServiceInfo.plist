@@ -74,6 +74,13 @@
 				<string>http://watchvideo.+</string>
 			</array>
 		</dict>
+	<key>TvLogy</key>
+		<dict>
+			<key>URLPatterns</key>
+			<array>
+				<string>http://tvlogy.to/.+</string>
+			</array>
+		</dict>
 	</dict>
 </dict>
 </plist>
