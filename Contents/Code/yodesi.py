@@ -2,9 +2,9 @@ import common, common_fnc
 import messages
 import re
 
-SITETITLE = 'Desi-Tashan'
-SITEURL = 'http://www.desi-tashan.ms/'
-SITETHUMB = 'icon-desitashan.png'
+SITETITLE = 'Yo-Desi'
+SITEURL = 'http://www.yodesi.tv'
+SITETHUMB = 'icon-yodesi.png'
 
 PREFIX = common.PREFIX
 NAME = common.NAME
@@ -13,19 +13,22 @@ ICON = common.ICON
 
 MC = messages.NewMessageContainer(common.PREFIX, common.TITLE)
 
+SWITCH_1 = ['Flash','Yodplayer']
+SWITCH_2 = ['Google','TvLogy']
+
 ####################################################################################################
 
-@route(PREFIX + '/desi-tashan/channels')
+@route('%s/%s/channels' % (PREFIX,SITETITLE))
 def ChannelsMenu(url):
 	oc = ObjectContainer(title2=SITETITLE)
 
 	html = HTML.ElementFromURL(url)
 
-	for item in html.xpath("//ul[@id='menu-3']//li//a"):
+	for item in html.xpath(".//nav[@id='navigation']//li//a"):
 		try:
 			# Channel title
 			channel = item.xpath("text()")[0]
-	#		Log("Channel = "+channel)
+			#Log("Channel = "+channel)
 			# Channel link
 			link = item.xpath("@href")[0]
 			if link.startswith("http") == False:
@@ -33,17 +36,7 @@ def ChannelsMenu(url):
 			
 			#Log("Channel Link: " + link)
 		except:
-			channel = item.xpath("./span/text()")
-			if(len(channel) != 0):
-				channel = channel[0]	
-	#			Log("Channel = "+str(channel))
-	#			Log("item "+ etree.tostring(item, pretty_print=True))
-				# Channel link
-				link = item.xpath("@href")[0]
-				if link.startswith("http") == False:
-					link = SITEURL + link
-			else:
-				continue
+			pass
 
 		try:
 			image = common.GetThumb(channel.lower())
@@ -61,20 +54,21 @@ def ChannelsMenu(url):
 	
 ####################################################################################################
 
-@route(PREFIX + '/desi-tashan/showsmenu')
+@route('%s/%s/showsmenu' % (PREFIX,SITETITLE))
 def ShowsMenu(url, title):
 	oc = ObjectContainer(title2=title)
 	#Log("Shows Menu: " + url + ":" + title)
 	html = HTML.ElementFromURL(url)
 	
-	for item in html.xpath(".//*[@id='td-outer-wrap']//div//td//li//a"):
+	for item in html.xpath(".//div[@id='tab-0-title-1']//div[contains(@class, 'one_fourth')]"):
 		#Log("item "+ etree.tostring(item, pretty_print=True))
 		try:
 			# Show title
-			show = item.xpath("text()")[0]
+			show = item.xpath(".//p//text()")[0]
+			thumb = item.xpath(".//img//@src")[0]
 			#Log("show name: " + show)
 			# Show link
-			link = item.xpath("@href")[0]
+			link = item.xpath(".//p//@href")[0]
 			#Log("show link: " + link)
 			if link.startswith("http") == False:
 				link = SITEURL + link.lstrip('/')
@@ -84,7 +78,27 @@ def ShowsMenu(url, title):
 			continue
 
 		# Add the found item to the collection
-		oc.add(DirectoryObject(key=Callback(EpisodesMenu, url=link, title=show), title=show))
+		oc.add(DirectoryObject(key=Callback(EpisodesMenu, url=link, title=show), title=show, thumb=thumb))
+
+	for item in html.xpath(".//div[@id='tab-1-title-2']//div[contains(@class, 'one_fourth')]"):
+		#Log("item "+ etree.tostring(item, pretty_print=True))
+		try:
+			# Show title
+			show = item.xpath(".//p//text()")[0] + ' (Archived)'
+			thumb = item.xpath(".//img//@src")[0]
+			#Log("show name: " + show)
+			# Show link
+			link = item.xpath(".//p//@href")[0]
+			#Log("show link: " + link)
+			if link.startswith("http") == False:
+				link = SITEURL + link.lstrip('/')
+#				Log("final show link: " + link)	
+		except:
+			#Log("In Excpetion")
+			continue
+
+		# Add the found item to the collection
+		oc.add(DirectoryObject(key=Callback(EpisodesMenu, url=link, title=show), title=show, thumb=thumb))
 		
 	# If there are no channels, warn the user
 	if len(oc) == 0:
@@ -94,7 +108,7 @@ def ShowsMenu(url, title):
 
 ####################################################################################################
 
-@route(PREFIX + '/desi-tashan/episodesmenu')
+@route('%s/%s/episodesmenu' % (PREFIX,SITETITLE))
 def EpisodesMenu(url, title):
 	oc = ObjectContainer(title2 = unicode(title))
 
@@ -102,28 +116,29 @@ def EpisodesMenu(url, title):
 
 	html = HTML.ElementFromURL(pageurl)
 	
-	for item in html.xpath(".//div[@class='td-block-span6']//h3[@class='entry-title td-module-title']//a"):
+	for item in html.xpath(".//div[@id='content_box']//article"):
 		try:
 			# Episode title
-			episode = unicode(str(item.xpath("text()")[0].strip()))
+			episode = unicode(str(item.xpath(".//header//h2//text()")[0].strip()))
+			thumb = unicode(str(item.xpath(".//a//img//@src")[0].strip()))
 			
 			# episode link
-			link = item.xpath("@href")[0]
+			link = item.xpath(".//h2//@href")[0]
 			if link.startswith("http") == False:
 				link = SITEURL + link.lstrip('/')
-			Log("Episode: " + episode + " Link: " + link)
+			#Log("Episode: " + episode + " Link: " + link)
 		except:
 			continue
 
 		# Add the found item to the collection
 		if 'Watch'.lower() in episode.lower():
-			episode = episode.replace(' Video Watch...','').replace(' Video Watch','')
+			episode = episode.replace(' Watch Online','')
 			oc.add(PopupDirectoryObject(key=Callback(PlayerLinksMenu, url=link, title=episode, type=L('Tv')), title=episode))
 	
 	# Find the total number of pages
 	next_page = ' '
 	try:
-		next_page = html.xpath("(.//div[@class='page-nav td-pb-padding-side']//a[not (@class='page') and not (@class='last')]//@href)[last()]")
+		next_page = html.xpath(".//div[@id='content_box']//nav//a[@class='next page-numbers']//@href")
 		oc.add(DirectoryObject(key=Callback(EpisodesMenu, url=next_page, title=title), title=L('Pages')))
 	except:
 		pass
@@ -151,7 +166,7 @@ def EpisodesMenu(url, title):
 
 ####################################################################################################
 
-@route(PREFIX + '/desi-tashan/playerlinksmenu')
+@route('%s/%s/playerlinksmenu' % (PREFIX,SITETITLE))
 def PlayerLinksMenu(url, title, type):
 	oc = ObjectContainer(title2 = unicode(title))
 	
@@ -164,10 +179,10 @@ def PlayerLinksMenu(url, title, type):
 	if '/images/xfuture.png.pagespeed.ic.WVkcd7CGfW.png' in content:
 		return ObjectContainer(header=title, message=L('ComingSoonWarning'))
 	
-	sources = html.xpath(".//div[@class='td-post-content td-pb-padding-side']//span[contains(text(),'HD')]//text()")
-	#if len(sources) == 0:
-	#	sources = html.xpath(".//h2[contains(text(),'HD')]//text()")
+	sources = html.xpath(".//*//div[@class='thecontent']//span//text()")
+
 	for source in sources:
+		source = Switch(source, SWITCH_1, SWITCH_2)
 		s_source, i = common_fnc.GetArrayItemMatchInString(common.VALID_SOURCES, source.lower(), False)
 		if s_source <> None:
 			if '720p' in source.lower():
@@ -194,7 +209,7 @@ def PlayerLinksMenu(url, title, type):
 
 ####################################################################################################
 
-@route(PREFIX + '/desi-tashan/episodelinksmenu')
+@route('%s/%s/episodelinksmenu' % (PREFIX,SITETITLE))
 def EpisodeLinksMenu(url, title, type, thumb):
 
 	oc = ObjectContainer(title2 = unicode(title))
@@ -203,7 +218,7 @@ def EpisodeLinksMenu(url, title, type, thumb):
 	html = HTML.ElementFromURL(url)
 	# Summary
 	summary = GetSummary(html)
-	items = GetParts(html, type)
+	items = GetParts(html, Switch(type, SWITCH_2, SWITCH_1))
 
 	links = []
 
@@ -212,17 +227,21 @@ def EpisodeLinksMenu(url, title, type, thumb):
 		try:
 			# Video site
 			videosite = item.xpath(".//text()")[0]
-			#Log("Video Site: " + videosite)
+			videosite = Switch(videosite, SWITCH_1, SWITCH_2)
+			if Prefs["use_debug"]:
+				Log("Video Site: " + videosite)
 			# Video link
 			link = item.xpath(".//@href")[0]
-			#Log("Link: " + link)
+			if Prefs["use_debug"]:
+				Log("Link: " + link)
 			if link.startswith("http") == False:
 				link = link.lstrip('htp:/')
 				link = 'http://' + link
 			
 			# Get video source url and thumb
 			link = common_fnc.GetTvURLSource(link,url)
-			#Log("Video Site: " + videosite + " Link: " + link + " Thumb: " + thumb)
+			if Prefs["use_debug"]:
+				Log("Video Site: " + videosite + " Link: " + link + " Thumb: " + thumb)
 		except:
 			continue
 
@@ -253,9 +272,8 @@ def EpisodeLinksMenu(url, title, type, thumb):
 
 def GetParts(html, keyword):
 
-	xpath_str = ".//div[@class='td-post-content td-pb-padding-side']//span[contains(text(),'"+keyword+"')]//following::p[1]//a"
+	xpath_str = ".//*//div[@class='thecontent']//span[contains(text(),'"+keyword+"')]//following::p[1]//a"
 	
-	#Log(xpath_str)
 	try:
 		items = html.xpath(xpath_str)
 	except:
@@ -268,8 +286,6 @@ def GetParts(html, keyword):
 def GetSummary(html):
 	try:
 		summary = html.xpath("//h1[@class='entry_title entry-title']/text()")[0]
-		#summary = summary.replace(" preview: ","",1)
-		#summary = summary.replace("Find out in","",1)
 	except:
 		summary = ''
 	return summary
@@ -283,3 +299,13 @@ def GetThumb(html):
 	except:
 		thumb = R(ICON)
 	return thumb
+
+####################################################################################################
+
+def Switch(mystr, arr_in, arr_to):
+	try:
+		for i in range(0, len(arr_in)):
+			mystr = mystr.replace(arr_in[i], arr_to[i])
+	except:
+		pass
+	return mystr

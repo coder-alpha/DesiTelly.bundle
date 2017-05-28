@@ -6,15 +6,6 @@ import string, re
 # import Shared ServiceCode
 import jsunpack as JSP
 
-HTTP_HEADERS = {
-	'Accept	text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-	'Accept-Encoding:	gzip, deflate',
-	'Accept-Language:	en-US,en;q=0.5',
-	'Connection:		keep-alive',
-	'Referer:		http://www.vidwatch3.me',
-	'User-Agent:		Mozilla/5.0 (Windows NT 6.1; WOW64; rv:33.0) Gecko/20100101 Firefox/33.0'
-}
-
 ART = 'http://i.imgur.com/GwSnkxE.jpg'
 COVER = 'http://i.imgur.com/0snKSZt.png'
 
@@ -26,7 +17,7 @@ def NormalizeURL(url):
 ####################################################################################################
 def MetadataObjectForURL(url):
 	
-	title = 'VidWatch Redirect Page'
+	title = 'SpeedWatch Redirect Page'
 	summary = 'Summary info Page'
 	
 	try:
@@ -49,8 +40,8 @@ def MetadataObjectForURL(url):
 	return VideoClipObject(
 		title = title,
 		summary = summary,
-		art = Resource.ContentsOfURLWithFallback([thumb,ART]),
-		thumb = Resource.ContentsOfURLWithFallback([thumb,COVER])
+		art = Resource.ContentsOfURLWithFallback([thumb, ART]),
+		thumb = Resource.ContentsOfURLWithFallback([thumb, COVER])
 	)
 	
 ####################################################################################################
@@ -78,7 +69,7 @@ def MediaObjectsForURL(url):
 	if len(files) == 0:
 		raise Ex.MediaNotAvailable
 	
-	Log(files)
+	#Log(files)
 	
 	sortable_list = []
 	for file in files:

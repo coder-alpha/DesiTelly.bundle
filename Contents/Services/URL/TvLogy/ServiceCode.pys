@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import string, re
 
 HTTP_HEADERS = {
@@ -22,8 +25,7 @@ def MetadataObjectForURL(url):
 	
 	try:
 		page_data = HTTP.Request(url).content
-		
-		img = re.findall(r'http.*jpg', page_data)[0]
+		img = match = re.findall(r'http.*jpg', page_data)[0]
 		thumb = img
 	except:
 		thumb = url

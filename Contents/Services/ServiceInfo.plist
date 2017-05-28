@@ -20,6 +20,13 @@
 				<string>https://www.cloudy.ec/.+</string>
 			</array>
 		</dict>
+	<key>Google</key>
+		<dict>
+			<key>URLPatterns</key>
+			<array>
+				<string>http://mediatv.me/.+</string>
+			</array>
+		</dict>
 	<key>Playwire</key>
 		<dict>
 			<key>URLPatterns</key>
@@ -44,6 +51,21 @@
 				<string>http://dl1.playu.net/.+</string>
 			</array>
 		</dict>
+	<key>SpeedWatch</key>
+		<dict>
+			<key>URLPatterns</key>
+			<array>
+				<string>http://speedwatch.us/.+</string>
+			</array>
+		</dict>
+	<key>TunePK</key>
+		<dict>
+			<key>URLPatterns</key>
+			<array>
+				<string>https://tune.pk/.+</string>
+				<string>https://embed.tune.pk/.+</string>
+			</array>
+		</dict>
 	<key>Vidshare</key>
 		<dict>
 			<key>URLPatterns</key>
@@ -57,6 +79,7 @@
 			<key>URLPatterns</key>
 			<array>
 				<string>http://vidwatch.+</string>
+				<string>http://vidwatch3.+</string>
 			</array>
 		</dict>
 	<key>VMG</key>

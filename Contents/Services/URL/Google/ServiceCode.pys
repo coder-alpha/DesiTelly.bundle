@@ -3,20 +3,9 @@
 
 import string, re
 
-# import Shared ServiceCode
-import jsunpack as JSP
-
-HTTP_HEADERS = {
-	'Accept	text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-	'Accept-Encoding:	gzip, deflate',
-	'Accept-Language:	en-US,en;q=0.5',
-	'Connection:		keep-alive',
-	'Referer:		http://www.vidwatch3.me',
-	'User-Agent:		Mozilla/5.0 (Windows NT 6.1; WOW64; rv:33.0) Gecko/20100101 Firefox/33.0'
-}
-
 ART = 'http://i.imgur.com/GwSnkxE.jpg'
 COVER = 'http://i.imgur.com/0snKSZt.png'
+USE_ITAG = True
 
 ########################################################################################
 def NormalizeURL(url):
@@ -26,25 +15,9 @@ def NormalizeURL(url):
 ####################################################################################################
 def MetadataObjectForURL(url):
 	
-	title = 'VidWatch Redirect Page'
+	thumb = ''
+	title = 'Google Redirect Page'
 	summary = 'Summary info Page'
-	
-	try:
-		txt = HTTP.Request(url).content
-		JSP_codes = re.findall(r'eval\(.+\)', txt)
-		for JSP_code in JSP_codes:
-			if 'jwplayer' in JSP_code:
-				break
-		# Log(JSP_code)
-		txt = JSP.unpack(JSP_code)
-		txt = re.findall(r'{.*}\);var', txt)[0]
-		txt = re.findall(r'{.*}', txt)[0]
-		jsondata = JSON.ObjectFromString(txt)
-		thumb = jsondata['image']
-		duration = jsondata['duration']
-		summary = jsondata['abouttext']
-	except:
-		thumb = url
 	
 	return VideoClipObject(
 		title = title,
@@ -56,40 +29,41 @@ def MetadataObjectForURL(url):
 ####################################################################################################
 def MediaObjectsForURL(url):
 
-	#Log("url-----------" + url)
+	page_data = HTTP.Request(url).content
+	#Log(page_data)
 	files = []
+	
 	try:
-		page_data = HTTP.Request(url).content
-		#Log(page_data)
-		JSP_codes = re.findall(r'eval\(.+\)', page_data)
-		for JSP_code in JSP_codes:
-			if 'jwplayer' in JSP_code:
-				break
-		#Log(JSP_code)
-		txt = JSP.unpack(JSP_code)
-		#Log(txt)
-		sources = re.findall(r'\[{.*}]', txt)[0]
-		#Log(sources)
-		files = JSON.ObjectFromString(sources)
-		#Log(files)
+		match = re.findall(r'\[{.+}]', page_data)[0]
+		#Log(match)
+		files = JSON.ObjectFromString(match)
 	except:
 		pass
 		
 	if len(files) == 0:
 		raise Ex.MediaNotAvailable
 	
-	Log(files)
-	
 	sortable_list = []
 	for file in files:
 		furl = file['file']
+		res = None
+		if USE_ITAG:
+			res = googletag(furl)
+			#Log(res)
+			if res != None:
+				res = res['quality'].replace('p','')
+				if res != '1080':
+					res = '0'+res
+		if res == None:
+			if 'label' in file.keys():
+				res = file['label'].replace('p','')
+				if res != '1080':
+					res = '0'+res
+			else:
+				res = '720'
 		
-		if 'label' in file.keys():
-			res = file['label'].replace('p','')
-			if res != '1080':
-				res = '0'+res
-		else:
-			res = '720'
+			
+		#type = file['type']
 		sortable_list.append({'label': res, 'file':furl})
 		
 	newlist = sorted(sortable_list, key=lambda k: k['label'], reverse=True)
@@ -98,6 +72,7 @@ def MediaObjectsForURL(url):
 	for file in newlist:
 		furl = file['file']
 		res = int(file['label'])
+		#type = file['type']
 		
 		#Log("furl ---- %s" % furl)
 		
@@ -105,16 +80,6 @@ def MediaObjectsForURL(url):
 			mo = MediaObject(
 					container = Container.FLV,
 					video_codec = VideoCodec.H264,
-					audio_codec = AudioCodec.AAC,
-					video_resolution = res,
-					audio_channels = 2,
-					optimized_for_streaming = True,
-					parts = [PartObject(key=Callback(PlayVideo, url=furl))]
-				)
-		elif '.m3u8' in furl:
-			mo = MediaObject(
-					protocol = 'hls',
-					container = 'mpegts',
 					audio_codec = AudioCodec.AAC,
 					video_resolution = res,
 					audio_channels = 2,
@@ -140,7 +105,24 @@ def MediaObjectsForURL(url):
 @indirect
 def PlayVideo(url):
 
-	if '.m3u8' in url:
-		return IndirectResponse(VideoClipObject, key=HTTPLiveStreamURL(url))
+	return IndirectResponse(VideoClipObject, key = url)
+	
+####################################################################################################
+def googletag(url):
+	quality = re.compile('itag=(\d*)').findall(url)
+	quality += re.compile('=m(\d*)$').findall(url)
+	try: quality = quality[0]
+	except: return None
+	#control.log('<><><><><><><><><><><><> %s <><><><><><><><><>' % quality)
+	if quality in ['37', '137', '299', '96', '248', '303', '46']:
+		return {'source': 'gvideo', 'quality': u'1080p', 'url': url}
+	elif quality in ['22', '84', '136', '298', '120', '95', '247', '302', '45', '102']:
+		return {'source': 'gvideo', 'quality': u'720p', 'url': url}
+	elif quality in ['35', '44', '135', '244', '94', '59']:
+		return {'source': 'gvideo', 'quality': u'480p', 'url': url}
+	elif quality in ['18', '34', '43', '82', '100', '101', '134', '243', '93']:
+		return {'source': 'gvideo', 'quality': u'480p', 'url': url}
+	elif quality in ['5', '6', '36', '83', '133', '242', '92', '132']:
+		return {'source': 'gvideo', 'quality': u'480p', 'url': url}
 	else:
-		return IndirectResponse(VideoClipObject, key=url)
+		return {'source': 'gvideo', 'quality': u'720p', 'url': url}

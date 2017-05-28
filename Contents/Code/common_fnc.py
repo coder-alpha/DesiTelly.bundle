@@ -150,6 +150,11 @@ def GetTvURLSource(url, referer, date='', key=None):
 		elif len(html.xpath("//iframe[contains(@src,'openload.')]/@src")) > 0:
 			#Log('openload')
 			url = html.xpath("//iframe[contains(@src,'openload.co')]/@src")[0]
+		elif len(html.xpath("//iframe[contains(@src,'tune.')]/@src")) > 0:
+			#Log('tune')
+			url = html.xpath("//iframe[contains(@src,'tune.')]/@src")[0]
+			html = HTML.ElementFromURL(url=url, headers={'Referer': url})
+			url = html.xpath("//iframe[contains(@src,'tune.')]/@src")[0]
 		else:
 			#Log('Undefined src')
 			orig_url = url
@@ -179,11 +184,17 @@ def GetTvURLSource(url, referer, date='', key=None):
 	except:
 		pass
 		
-	#Log(url)
+	if Prefs["use_debug"]:
+		Log("common_fnc.GetTvURLSource : %s" % url)
+		
 	if url.startswith('//'):
 		url = 'http:' + url
 		
 	url = CheckURLSource(url=url, referer=referer, key=key, string=string, html=html)
+	
+	if Prefs["use_debug"]:
+		Log("Post CheckURLSource")
+		Log("common_fnc.GetTvURLSource : %s" % url)
 
 	return url
 
@@ -193,8 +204,6 @@ def CheckURLSource(url, referer, key=None, string=None, html=None, stringMatch=F
 	if string == None:
 		string = HTTP.Request(url=url, headers={'Referer': referer}).content
 		
-	#Log('string: ' + string)
-
 	try:
 		if string.find('dailymotion.com') != -1:
 			#Log('dailymotion')
@@ -205,6 +214,11 @@ def CheckURLSource(url, referer, key=None, string=None, html=None, stringMatch=F
 			#Log('vmg')
 			page = HTTP.Request(url, headers={'Referer': referer}).content
 			if 'Content removed' in page or 'Content rejected' in page or 'This video got removed' in page or 'ERROR' in page:
+				url = 'disabled'
+		elif string.find('tune.') != -1:
+			#Log('tune')
+			page = HTTP.Request(url, headers={'Referer': referer}).content
+			if 'Content removed' in page or 'Content rejected' in page or 'this video has been deactivated' in page or 'ERROR' in page:
 				url = 'disabled'
 		elif string.find('vidshare.') != -1:
 			#Log('vidshare')

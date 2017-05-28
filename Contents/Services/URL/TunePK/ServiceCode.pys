@@ -1,0 +1,147 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import string, re, json
+
+HTTP_HEADERS = {'User-Agent':'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'}
+
+ART = 'http://i.imgur.com/GwSnkxE.jpg'
+COVER = 'http://i.imgur.com/0snKSZt.png'
+
+########################################################################################
+def NormalizeURL(url):
+
+	return url
+
+####################################################################################################
+def MetadataObjectForURL(url):
+	
+	title = 'TunePK Redirect Page'
+	summary = 'Summary info Page'
+	thumb = COVER
+	duration = 1000
+	
+	try:
+		http_headers = HTTP_HEADERS
+		#http_headers['Referer'] = url
+		#page_elems = HTML.ElementFromURL(url, headers=http_headers)
+		#url = page_elems.xpath("//iframe[contains(@src,'tune.pk')]/@src")[0]
+		refurl = url
+		http_headers['Referer'] = url
+		page_data = HTTP.Request(url, headers=http_headers).content
+		url = re.findall(r'\'(.*api_key.*)\'', page_data)[0]
+		http_headers['Referer'] = url
+		page_data = HTTP.Request(url, headers=http_headers).content
+		jsondata = JSON.ObjectFromString(page_data)
+		duration =  int(jsondata['data']['details']['duration']) * 1000
+		title =  jsondata['data']['details']['video']['title']
+		thumb = jsondata['data']['details']['video']['thumb']
+	except:
+		pass
+	
+	return VideoClipObject(
+		title = title,
+		summary = summary,
+		duration = duration,
+		art = Resource.ContentsOfURLWithFallback([thumb,ART]),
+		thumb = Resource.ContentsOfURLWithFallback([thumb,COVER])
+	)
+	
+####################################################################################################
+def MediaObjectsForURL(url):
+
+	files = []
+	refurl = url
+	try:
+		http_headers = HTTP_HEADERS
+		#http_headers['Referer'] = url
+		#page_elems = HTML.ElementFromURL(url, headers=http_headers)
+		#url = page_elems.xpath("//iframe[contains(@src,'tune.pk')]/@src")[0]
+		refurl = url
+		http_headers['Referer'] = url
+		page_data = HTTP.Request(url, headers=http_headers).content
+		url = re.findall(r'\'(.*api_key.*)\'', page_data)[0]
+		http_headers['Referer'] = url
+		page_data = HTTP.Request(url, headers=http_headers).content
+		jsondata = JSON.ObjectFromString(page_data)
+		#Log(jsondata)
+		sources =  jsondata['data']['details']['player']['sources']
+		#Log(sources)
+		sources = json.dumps(sources)
+		sources = sources.replace('u\'','\'')
+		file_matches = re.findall(r'{.*?}', sources)
+		for file_m in file_matches:
+			file_m = file_m.replace('u\'','\'')
+			file_m = JSON.ObjectFromString(file_m)
+			file_x = {'file':file_m['file'], 'label':str(file_m['label']), 'type':file_m['type']}
+			files.append(file_x)
+	except:
+		pass
+		
+	if len(files) == 0:
+		raise Ex.MediaNotAvailable
+
+	sortable_list = []
+	for file in files:
+		furl = file['file']
+		
+		if 'label' in file.keys():
+			res = file['label'].replace('p','')
+			if res != '1080':
+				res = '0'+res
+		else:
+			res = '720'
+		sortable_list.append({'label':res, 'file':furl})
+		
+	newlist = sorted(sortable_list, key=lambda k: k['label'], reverse=True)
+	media_obj = []
+	
+	for file in newlist:
+		furl = file['file']
+		res = int(file['label'])
+		
+		#Log("furl ---- %s" % furl)
+		
+		if '.flv' in furl:
+			mo = MediaObject(
+					container = Container.FLV,
+					video_codec = VideoCodec.H264,
+					audio_codec = AudioCodec.AAC,
+					video_resolution = res,
+					audio_channels = 2,
+					optimized_for_streaming = True,
+					parts = [PartObject(key=Callback(PlayVideo, url=furl, refurl=refurl))]
+				)
+		elif '.m3u8' in furl:
+			mo = MediaObject(
+					protocol = 'hls',
+					container = 'mpegts',
+					audio_codec = AudioCodec.AAC,
+					video_resolution = res,
+					audio_channels = 2,
+					optimized_for_streaming = True,
+					parts = [PartObject(key=Callback(PlayVideo, url=furl, refurl=refurl))]
+				)
+		else:
+			mo = MediaObject(
+					container = Container.MP4,
+					video_codec = VideoCodec.H264,
+					audio_codec = AudioCodec.AAC,
+					video_resolution = res,
+					audio_channels = 2,
+					optimized_for_streaming = True,
+					parts = [PartObject(key=Callback(PlayVideo, url=furl, refurl=refurl))]
+				)
+		
+		media_obj.append(mo)
+
+	return media_obj
+
+####################################################################################################
+@indirect
+def PlayVideo(url, refurl):
+
+	http_headers = HTTP_HEADERS
+	http_headers['Referer'] = refurl
+	
+	return IndirectResponse(VideoClipObject, key=url, http_headers=http_headers)
