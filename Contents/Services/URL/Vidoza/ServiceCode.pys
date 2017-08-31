@@ -1,0 +1,83 @@
+import demjson, re
+
+HTTP_HEADERS = {
+	'Accept	text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+	'Accept-Encoding:	gzip, deflate',
+	'Accept-Language:	en-US,en;q=0.5',
+	'Connection:		keep-alive',
+	'Referer:		http://vidoza.net',
+	'User-Agent:		Mozilla/5.0 (Windows NT 6.1; WOW64; rv:33.0) Gecko/20100101 Firefox/33.0'
+}
+
+ART = 'http://i.imgur.com/GwSnkxE.jpg'
+COVER = 'http://i.imgur.com/0snKSZt.png'
+
+########################################################################################
+def NormalizeURL(url):
+
+	return url
+
+####################################################################################################
+def MetadataObjectForURL(url):
+	
+	try:
+		page = HTTP.Request(url).content
+		page_data = HTML.ElementFromString(page)
+		jsblock = page_data.xpath("//script[contains(text(),'jwplayer(\"vplayer\").setup')]//text()")[0]
+		jsonValue = None
+		jsonValue = ((jsblock.split(').setVolume',1)[0]).strip()).lstrip("jwplayer(\"vplayer\").setup(")
+		#Log("JSON Value = "+jsonValue)
+		if (jsonValue is None):
+			raise
+ 		value = demjson.decode(jsonValue)
+ 		thumb = value['image']
+		sources = value['sources']
+	except:
+		thumb = url
+		
+	title = 'Vidoza Redirect Page'
+	summary = 'Summary info Page'
+	
+	return VideoClipObject(
+		title = title,
+		summary = summary + '\n\n',
+		art = Resource.ContentsOfURLWithFallback([thumb,ART]),
+		thumb = Resource.ContentsOfURLWithFallback([thumb,COVER])
+	)
+	
+####################################################################################################
+def MediaObjectsForURL(url):
+
+	sources = []
+	try:
+		page = HTTP.Request(url).content
+		page_data = HTML.ElementFromString(page)
+		jsblock = page_data.xpath("//script[contains(text(),'jwplayer(\"vplayer\").setup')]//text()")[0]
+		jsonValue = None
+		jsonValue = ((jsblock.split(').setVolume',1)[0]).strip()).lstrip("jwplayer(\"vplayer\").setup(")
+		Log("JSON Value = "+jsonValue)
+		if (jsonValue is None):
+			raise
+ 		value = demjson.decode(jsonValue)
+		sources = value['sources']
+	except Exception as e:
+		Log(e)
+		raise Ex.MediaNotAvailable
+	
+	return [
+		MediaObject(
+			container = Container.MP4,
+			#video_codec = VideoCodec.H264,
+			video_resolution = str(sources[0]['label'].replace('p','')),
+			audio_codec = AudioCodec.AAC,
+			audio_channels = 2,
+			optimized_for_streaming = True,
+			parts = [PartObject(key=Callback(PlayVideo, url=sources[0]['file']))]
+		)
+	]
+
+####################################################################################################
+@indirect
+def PlayVideo(url):
+	
+	return IndirectResponse(VideoClipObject, key=url)

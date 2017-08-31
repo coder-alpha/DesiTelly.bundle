@@ -66,6 +66,13 @@
 				<string>https://embed.tune.pk/.+</string>
 			</array>
 		</dict>
+	<key>Vidoza</key>
+		<dict>
+			<key>URLPatterns</key>
+			<array>
+				<string>http://vidoza.+</string>
+			</array>
+		</dict>
 	<key>Vidshare</key>
 		<dict>
 			<key>URLPatterns</key>

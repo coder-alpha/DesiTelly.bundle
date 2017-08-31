@@ -221,6 +221,8 @@ def EpisodeLinksMenu(url, title, type, thumb):
 	items = GetParts(html, Switch(type, SWITCH_2, SWITCH_1))
 
 	links = []
+	
+	OPR = ''
 
 	for item in items:
 		
@@ -242,6 +244,12 @@ def EpisodeLinksMenu(url, title, type, thumb):
 			link = common_fnc.GetTvURLSource(link,url)
 			if Prefs["use_debug"]:
 				Log("Video Site: " + videosite + " Link: " + link + " Thumb: " + thumb)
+				
+			if 'openload.' in link and Prefs['use_openload_pairing'] and OPR == '':
+				if common_fnc.isOpenLoadPairingDone():
+					OPR = ' *Paired*'
+				else:
+					OPR = ' *Pairing Required*'
 		except:
 			continue
 
@@ -250,12 +258,14 @@ def EpisodeLinksMenu(url, title, type, thumb):
 		# Add the found item to the collection
 		if common_fnc.IsArrayItemInString2(common.VALID_SOURCES_DOMAIN, link, False) or (Prefs['allow_unknown_sources'] and URLService.ServiceIdentifierForURL(link) <> None):
 		
-			if link.find('openload') != -1 and not common_fnc.is_uss_installed():
+			if link.find('openload') != -1 and not common_fnc.is_uss_installed() and Prefs['use_openload_pairing'] == False:
 				return MC.message_container('Error', 'UnSupportedServices.bundle Required')
+			elif link.find('openload') != -1 and Prefs['use_openload_pairing'] == True:
+				link = "desitelly://" + E(JSON.StringFromObject({"title": videosite, "urls": [link], "thumb": thumb, "use_openload_pairing": Prefs['use_openload_pairing']}))
 			
 			oc.add(VideoClipObject(
 				url = link,
-				title = videosite,
+				title = '%s%s' % (videosite, OPR),
 				thumb = Resource.ContentsOfURLWithFallback(thumb, fallback=R(ICON)),
 				art = Resource.ContentsOfURLWithFallback(thumb, fallback=R(ART)),
 				summary = summary))

@@ -276,7 +276,11 @@ def PlayerLinksMenu(url, title, type):
 		elif len(sources) == 0 and not Prefs['allow_unknown_sources']:
 			return ObjectContainer(header=title, message=L('EnableHostOption'))
 		for source in sources:
-			s_source, i = common_fnc.GetArrayItemMatchInString(common.VALID_SOURCES, source.lower(), False)
+			s_source, i = common_fnc.GetArrayItemMatchInString(common.VALID_SOURCES, source, True)
+			Log(s_source)
+			if s_source == None:
+				s_source, i = common_fnc.GetArrayItemMatchInString(common.VALID_SOURCES, source.lower(), False)
+				Log(s_source)
 			if s_source <> None:
 				if '720p' in source.lower():
 					if 'single' in source.lower():
@@ -466,6 +470,8 @@ def EpisodeLinksMenu(url, title, type, quality, key=None):
 
 	links = []
 
+	OPR = ''
+
 	for item in items:
 		
 		try:
@@ -484,6 +490,11 @@ def EpisodeLinksMenu(url, title, type, quality, key=None):
 			# Get video source url and thumb
 			link = common_fnc.GetTvURLSource(link,url,date,key=key)
 			#Log("Video Site: " + videosite + " Link: " + link + " Thumb: " + thumb)
+			if 'openload.' in link and Prefs['use_openload_pairing'] and OPR == '':
+				if common_fnc.isOpenLoadPairingDone():
+					OPR = ' *Paired*'
+				else:
+					OPR = ' *Pairing Required*'
 		except:
 			continue
 			
@@ -494,10 +505,15 @@ def EpisodeLinksMenu(url, title, type, quality, key=None):
 
 		# Add the found item to the collection
 		if common_fnc.IsArrayItemInString2(common.VALID_SOURCES_DOMAIN, link, False) or (Prefs['allow_unknown_sources'] and URLService.ServiceIdentifierForURL(link) <> None):
+			if link.find('openload') != -1 and not common_fnc.is_uss_installed() and Prefs['use_openload_pairing'] == False:
+				return MC.message_container('Error', 'UnSupportedServices.bundle Required')
+			elif link.find('openload') != -1 and Prefs['use_openload_pairing'] == True:
+				link = "desitelly://" + E(JSON.StringFromObject({"title": videosite, "urls": [link], "thumb": thumb, "use_openload_pairing": Prefs['use_openload_pairing']}))
+				
 			links.append(URLService.NormalizeURL(link))
 			oc.add(VideoClipObject(
 				url = link, 
-				title = videosite,
+				title = '%s%s' % (videosite, OPR),
 				thumb = Resource.ContentsOfURLWithFallback(thumb, fallback=R(ICON)),
 				summary = summary,
 				originally_available_at = originally_available_at))

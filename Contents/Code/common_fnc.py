@@ -1,4 +1,4 @@
-import common, urllib2, redirect_follower
+import common, urllib2, redirect_follower, json, re
 import desitvbox, desitashan, desirulez
 
 global_request_timeout = 10
@@ -6,6 +6,7 @@ global_request_timeout = 10
 GOOD_RESPONSE_CODES = ['200','206']
 
 BANNED_KEYWORDS = ['File Does not Exist','Has Been Removed','Content removed','Content rejected','Content removed','Content rejected','This video got removed','File was deleted','We are sorry','copyright violation','File Not Found']
+
 
 ####################################################################################################
 # Get HTTP response code (200 == good)
@@ -89,7 +90,7 @@ def IsArrayItemInString(arr, mystr, case_match=True, exact=False):
 def IsArrayItemInString2(arr, mystr, case_match=True):
 
 	for item in arr:
-		if not case_match:
+		if case_match == False:
 			item = item.lower()
 			mystr = mystr.lower()
 		if item in mystr:
@@ -104,9 +105,11 @@ def IsArrayItemInString2(arr, mystr, case_match=True):
 def GetArrayItemMatchInString(arr, mystr, case_match=True, exact=False):
 
 	c=-1
+	#Log('-------------------' + mystr)
 	for item in arr:
+		#Log('-------------------' + item)
 		c=c+1
-		if not case_match:
+		if case_match == False:
 			item = item.lower()
 			mystr = mystr.lower()
 		if exact:
@@ -289,6 +292,77 @@ def isValidCloudyURL(url):
 		
 	#Log("bool --------" + str(vurl))
 	return vurl
+	
+	
+openloadhdr = {
+	'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0',
+	'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+	'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
+	'Accept-Encoding': 'none',
+	'Accept-Language': 'en-US,en;q=0.8',
+	'Connection': 'keep-alive'}
+	
+API_URL = 'https://api.openload.co/1'
+PAIR_INFO_URL = API_URL + '/streaming/info'
+GET_VIDEO_URL = API_URL + '/streaming/get?file=%s'
+VALID_URL = r'https?://(?:openload\.(?:co|io)|oload\.tv)/(?:f|embed)/(?P<id>[a-zA-Z0-9-_]+)'
+
+def matchOpenLoadID(url):
+	VALID_URL_RE = re.compile(VALID_URL)
+	m = VALID_URL_RE.match(url)
+	assert m
+	return m.group('id')
+
+def isOpenLoadPairingDone():
+	
+	pairurl = 'https://openload.co/pair'
+	echourl = 'https://v4speed.oloadcdn.net/echoip'
+	checkpairurl = 'https://openload.co/checkpair/%s'
+	
+	r = HTTP.Request(echourl).content
+	print "URL:%s  Resp:%s" % (echourl, r)
+	
+	checkpairurl_withip = checkpairurl % r
+	r = HTTP.Request(checkpairurl_withip).content
+	
+	if r != None and '1' in r:
+		return True
+		
+	return False
+	
+def pairing_method_OpenLoad(url):
+	
+	video_id = matchOpenLoadID(url)
+	
+	get_info = HTTP.Request(GET_VIDEO_URL % video_id, headers=openloadhdr).content
+	#print "get_info --- %s" % get_info
+	get_info = json.loads(get_info)
+	status = get_info.get('status')
+	#print "status --- %s" % status
+	if status == 200:
+		result = get_info.get('result', {})
+		return result.get('url')
+	elif status == 403:
+		pair_info = HTTP.Request(PAIR_INFO_URL, headers=openloadhdr).content
+		#print "pair_info --- %s" % pair_info
+		pair_info = json.loads(pair_info)
+		if pair_info.get('status') == 200:
+			pair_url = pair_info.get('result', {}).get('auth_url')
+			if pair_url:
+				#print 'Open this url: %s, solve captcha, click "Pair" button and try again' % pair_url
+				Log('Open this url: %s, solve captcha, click "Pair" button and try again' % pair_url)
+			else:
+				#print 'Pair URL not found'
+				Log('Pair URL not found: %s' % video_id)
+		else:
+			#print 'Error loading pair info'
+			Log('Error loading pair info: %s' % video_id)
+	else:
+		#print 'Error loading JSON metadata'
+		msg = get_info.get('msg')
+		Log('Error %s - %s: %s' % (status, msg, video_id))
+		
+	return None
 	
 ######### PINS #############################################################################
 # Checks a show to the Pins list using the url as a key

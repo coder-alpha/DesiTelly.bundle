@@ -1,6 +1,6 @@
 ################################################################################
 TITLE = L('Title')
-VERSION = '0.07' # Release notation (x.y - where x is major and y is minor)
+VERSION = '0.08' # Release notation (x.y - where x is major and y is minor)
 GITHUB_REPOSITORY = 'coder-alpha/DesiTelly.bundle'
 PREFIX = "/video/desitelly"
 ################################################################################
@@ -66,6 +66,7 @@ MAHUAATV = 'Mahuaa Tv'
 PTCPUNJABI = 'PTC Punjabi'
 STARWORLDHD = 'Star World Premiere HD'
 STARWORLD = 'Star World'
+STARBHARAT = 'Star Bharat'
 ZEECAFE = 'Zee Cafe'
 PAKCHAN = 'Pak Channels'
 ZEENEXT = 'Zee-Next'
@@ -86,15 +87,16 @@ ZINDAGITV2 = 'Zindagi'
 #DesiTashan
 TV_NEWS = 'TV News'
 
-VALID_SOURCES_DOMAIN = ['dailymotion.','playwire.','vidshare.','openload.','playu.', 'cloudy.', 'vmg.','watchvideo','tvlogy','google','mediatv.','vidwatch3.','speedwatch.us','tune.pk']
-VALID_SOURCES = ['Dailymotion','Flash Player','Flash','Playwire','Letwatch','Openload','PlayU','StreamHD','HDStream','Watchvideo','TvLogy','Google','VidWatch','Vid Watch','SpeedWatch','Speed','TunePK','Tune']
-VALID_SOURCES_ICONS = ['dailymotion','playwire','playwire','playwire','letwatchus','openload','playu','vmg','vmg','source-watchvideo','tvlogy','google','vidwatch','vidwatch','speedwatch','speedwatch','tunepk','tunepk']
+VALID_SOURCES_DOMAIN = ['dailymotion.','playwire.','vidshare.','openload.','playu.', 'cloudy.', 'vmg.','watchvideo','tvlogy','google','mediatv.','vidwatch3.','speedwatch.us','tune.pk','vidoza.']
+VALID_SOURCES = ['Dailymotion','Flash Player','Flash','Playwire','Letwatch','Openload','PlayU','StreamHD','HDStream','Watchvideo','TvLogy','Google','VidWatch','Vid Watch','Vidwatch','SpeedWatch','Speed','TunePK','Tunepk','Tune','ViDoza']
+VALID_SOURCES_ICONS = ['dailymotion','playwire','playwire','playwire','letwatchus','openload','playu','vmg','vmg','source-watchvideo','tvlogy','google','vidwatch','vidwatch','vidwatch','speedwatch','speedwatch','tunepk','tunepk','tunepk','vidoza']
 
 ####################################################################################################
 
 def GetSupportedChannels():
 	return [
-		STARPLUS.lower(), 
+		STARPLUS.lower(),
+		STARBHARAT.lower(),
 		ZEETV.lower(), 
 		SONYTV.lower(), 
 		LIFEOK.lower(), 
@@ -271,6 +273,8 @@ def GetThumb(channel):
 		icon = R('icon-&TV.png')
 	elif channel == EPIC.lower():
 		icon = R('icon-epic.png')
+	elif channel == STARBHARAT.lower():
+		icon = R('icon-starbharat.png')
 
 	return icon
 

@@ -197,6 +197,8 @@ def EpisodeLinksMenu(url, title, type):
 	items = GetParts(html, type)
 	bool_do_use_parts_feature = True
 	links = []
+	
+	OPR = ''
 
 	for item in items:
 		
@@ -218,6 +220,12 @@ def EpisodeLinksMenu(url, title, type):
 			# Get video source url and thumb
 			link = common_fnc.GetTvURLSource(link,url,date)
 			#Log("Video Site: " + videosite + " Link: " + link + " Thumb: " + thumb)
+			
+			if 'openload.' in link and Prefs['use_openload_pairing'] and OPR == '':
+				if common_fnc.isOpenLoadPairingDone():
+					OPR = ' *Paired*'
+				else:
+					OPR = ' *Pairing Required*'
 		except:
 			continue
 			
@@ -231,14 +239,16 @@ def EpisodeLinksMenu(url, title, type):
 		# Add the found item to the collection
 		if common_fnc.IsArrayItemInString2(common.VALID_SOURCES_DOMAIN, link, False) or (Prefs['allow_unknown_sources'] and URLService.ServiceIdentifierForURL(link) <> None):
 		
-			if link.find('openload') != -1 and not common_fnc.is_uss_installed():
+			if link.find('openload') != -1 and not common_fnc.is_uss_installed() and Prefs['use_openload_pairing'] == False:
 				return MC.message_container('Error', 'UnSupportedServices.bundle Required')
+			elif link.find('openload') != -1 and Prefs['use_openload_pairing'] == True:
+				link = "desitelly://" + E(JSON.StringFromObject({"title": videosite, "urls": [link], "thumb": thumb, "use_openload_pairing": Prefs['use_openload_pairing']}))
 
 			if not Prefs['consolidate_parts'] or (link.find('playwire.') == -1 and Prefs['consolidate_parts']):
 				bool_do_use_parts_feature = False
 				oc.add(VideoClipObject(
 					url = link,
-					title = videosite,
+					title = '%s%s' % (videosite, OPR),
 					art = Resource.ContentsOfURLWithFallback(thumb, fallback=R(ART)),
 					thumb = Resource.ContentsOfURLWithFallback(thumb, fallback=R(ICON)),
 					summary = summary,
@@ -253,7 +263,7 @@ def EpisodeLinksMenu(url, title, type):
 			art = Resource.ContentsOfURLWithFallback([thumb,R(ART)]),
 			summary = summary,
 			originally_available_at = originally_available_at,
-            url="desitelly://" + E(JSON.StringFromObject({"title": videosite, "urls": links, "thumb": thumb}))
+            url="desitelly://" + E(JSON.StringFromObject({"title": videosite, "urls": links, "thumb": thumb, "use_openload_pairing": Prefs['use_openload_pairing']}))
             ))
 	
 	# If there are no channels, warn the user
