@@ -5,7 +5,7 @@ import datetime
 import messages
 
 SITETITLE = 'DesiTvBox'
-SITEURL = 'http://www.desitvbox.me/'
+SITEURL = 'http://www.desitvbox.info/'
 SITETHUMB = 'icon-desitvbox.png'
 
 PREFIX = common.PREFIX
