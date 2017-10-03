@@ -1,8 +1,8 @@
 DesiTelly.bundle
 ===================
 Plex Media Server plug-in designed for Desi Entertainment
-- [Plex Support thread] (http://forums.plex.tv/discussion/234701/)
-- [Plex Support thread (old)] (https://forums.plex.tv/discussion/107492/req-indian-tv-shows/p1)
+- [Plex Support thread](http://forums.plex.tv/discussion/234701/)
+- [Plex Support thread (old)](https://forums.plex.tv/discussion/107492/req-indian-tv-shows/p1)
 
 System Requirements
 ===================
@@ -37,7 +37,7 @@ Important Notes
 - Currently only Dailymotion, Flash/Playwire, PlayU, Letwatch/Vidshare, VidWatch, WatchVideo & VMG host is supported well.
 - More hosts can be enabled using USS (read below under Preferences/Options setting). [UnSupportedServices.bundle](https://github.com/Twoure/UnSupportedServices.bundle) must be installed and updated to dev branch to use Openload host when available for video links
 - Movie support for DesiRulez is included but YMMV (installing USS is highly recommended)
-- This plugin builds from my older version located [here] (https://github.com/coder-alpha/DesiTV.bundle)
+- This plugin builds from my older version located [here](https://github.com/coder-alpha/DesiTV.bundle)
 
 Preferences/Options setting
 ==============
@@ -52,6 +52,6 @@ Known Issues
 Acknowledgements
 ==============
 
-- Credits to [b-slick] (https://forums.plex.tv/index.php/topic/107492-req-indian-tv-shows/): for developing the original code
-- Credits to [mohit310] (https://github.com/mohit310/DesiTV.bundle) and [hussamnasir] (https://github.com/hussamnasir/DesiTV.bundle) for contributions. Check out their forks as well.
-- Thanks to [Twoure] (https://github.com/Twoure/) for developing the UnSupportedServices.bundle and help with split-part playback
+- Credits to [b-slick](https://forums.plex.tv/index.php/topic/107492-req-indian-tv-shows/): for developing the original code
+- Credits to [mohit310](https://github.com/mohit310/DesiTV.bundle) and [hussamnasir] (https://github.com/hussamnasir/DesiTV.bundle) for contributions. Check out their forks as well.
+- Thanks to [Twoure](https://github.com/Twoure/) for developing the UnSupportedServices.bundle and help with split-part playback
