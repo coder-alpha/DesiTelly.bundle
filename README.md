@@ -53,5 +53,5 @@ Acknowledgements
 ==============
 
 - Credits to [b-slick](https://forums.plex.tv/index.php/topic/107492-req-indian-tv-shows/): for developing the original code
-- Credits to [mohit310](https://github.com/mohit310/DesiTV.bundle) and [hussamnasir] (https://github.com/hussamnasir/DesiTV.bundle) for contributions. Check out their forks as well.
+- Credits to [mohit310](https://github.com/mohit310/DesiTV.bundle) and [hussamnasir](https://github.com/hussamnasir/DesiTV.bundle) for contributions. Check out their forks as well.
 - Thanks to [Twoure](https://github.com/Twoure/) for developing the UnSupportedServices.bundle and help with split-part playback
