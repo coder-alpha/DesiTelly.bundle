@@ -19,7 +19,6 @@ ICON = common.ICON
 def Start():
 	ObjectContainer.title1 = NAME
 	ObjectContainer.art = R(ART)
-
 	DirectoryObject.thumb = R(ICON)
 	DirectoryObject.art = R(ART)
 	EpisodeObject.thumb = R(ICON)

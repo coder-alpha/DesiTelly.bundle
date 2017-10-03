@@ -73,6 +73,13 @@
 				<string>http://vidoza.+</string>
 			</array>
 		</dict>
+	<key>DailyTv</key>
+		<dict>
+			<key>URLPatterns</key>
+			<array>
+				<string>http://dailytv.co+</string>
+			</array>
+		</dict>
 	<key>Vidshare</key>
 		<dict>
 			<key>URLPatterns</key>

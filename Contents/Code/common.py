@@ -1,6 +1,6 @@
 ################################################################################
 TITLE = L('Title')
-VERSION = '0.09' # Release notation (x.y - where x is major and y is minor)
+VERSION = '0.10' # Release notation (x.y - where x is major and y is minor)
 GITHUB_REPOSITORY = 'coder-alpha/DesiTelly.bundle'
 PREFIX = "/video/desitelly"
 ################################################################################
@@ -87,9 +87,9 @@ ZINDAGITV2 = 'Zindagi'
 #DesiTashan
 TV_NEWS = 'TV News'
 
-VALID_SOURCES_DOMAIN = ['dailymotion.','playwire.','vidshare.','openload.','playu.', 'cloudy.', 'vmg.','watchvideo','tvlogy','google','mediatv.','vidwatch3.','speedwatch.us','tune.pk','vidoza.']
-VALID_SOURCES = ['Dailymotion','Flash Player','Flash','Playwire','Letwatch','Openload','PlayU','StreamHD','HDStream','Watchvideo','TvLogy','Google','VidWatch','Vid Watch','Vidwatch','SpeedWatch','Speed','TunePK','Tunepk','Tune','ViDoza']
-VALID_SOURCES_ICONS = ['dailymotion','playwire','playwire','playwire','letwatchus','openload','playu','vmg','vmg','source-watchvideo','tvlogy','google','vidwatch','vidwatch','vidwatch','speedwatch','speedwatch','tunepk','tunepk','tunepk','vidoza']
+VALID_SOURCES_DOMAIN = ['dailymotion.','playwire.','vidshare.','openload.','playu.', 'cloudy.', 'vmg.','watchvideo','tvlogy','google','mediatv.','vidwatch3.','speedwatch.us','tune.pk','vidoza.','dailytv.']
+VALID_SOURCES = ['Dailymotion','Flash Player','Flash','Playwire','Letwatch','Openload','PlayU','StreamHD','HDStream','Watchvideo','TvLogy','Google','VidWatch','Vid Watch','Vidwatch','SpeedWatch','Speed','TunePK','Tunepk','Tune','ViDoza','DailyTV']
+VALID_SOURCES_ICONS = ['dailymotion','playwire','playwire','playwire','letwatchus','openload','playu','vmg','vmg','source-watchvideo','tvlogy','google','vidwatch','vidwatch','vidwatch','speedwatch','speedwatch','tunepk','tunepk','tunepk','vidoza','dailytv']
 
 ####################################################################################################
 
