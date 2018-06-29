@@ -25,6 +25,7 @@
     "PlayerWarning": "Sorry there is an error processing the players.",
     "SourceWarning": "Sorry the videos don't exist yet for this source, please try another.",
 	"DisabledWarning": "Sorry the videos have been removed, please try another.",
+	"DotBlockedWarning": "Sorry Blocked by DOT, GOI, please try another.",
 	"ComingSoonWarning": "Coming Soon, please try again later.",
 	"EnableHostOption": "No Source. Enabling Allow Unsupported Hosts under Options might enable playback for some vids !",
     "Pages": "--Next Page->>-",

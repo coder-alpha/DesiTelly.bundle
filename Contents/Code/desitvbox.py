@@ -20,28 +20,32 @@ MC = messages.NewMessageContainer(common.PREFIX, common.TITLE)
 @route(PREFIX + '/desitvbox/channels')
 def ChannelsMenu(url):
 	oc = ObjectContainer(title2=SITETITLE)
+	HTTP.Headers['Referer'] = SITEURL
+	
+	try:
+		html = HTML.ElementFromURL(url)
 
-	html = HTML.ElementFromURL(url)
+		for item in html.xpath("//nav[@class='site_navigation']//a"):
+			try:
+				# Channel title
+				channel = item.xpath("text()")[0]
 
-	for item in html.xpath("//nav[@class='site_navigation']//a"):
-		try:
-			# Channel title
-			channel = item.xpath("text()")[0]
+				# Channel link
+				link = item.xpath("@href")[0]
+				if link.startswith("http") == False:
+					link = SITEURL + link
+			except:
+				continue
 
-			# Channel link
-			link = item.xpath("@href")[0]
-			if link.startswith("http") == False:
-				link = SITEURL + link
-		except:
-			continue
+			try:
+				image = common.GetThumb(channel.lower())
+			except:
+				continue
 
-		try:
-			image = common.GetThumb(channel.lower())
-		except:
-			continue
-
-		if channel.lower() in common.GetSupportedChannels():
-			oc.add(DirectoryObject(key=Callback(ShowsMenu, url=link, title=channel), title=channel, thumb=image))
+			if channel.lower() in common.GetSupportedChannels():
+				oc.add(DirectoryObject(key=Callback(ShowsMenu, url=link, title=channel), title=channel, thumb=image))
+	except Exception as e:
+		Log.Error(e)
 		
 	# If there are no channels, warn the user
 	if len(oc) == 0:
@@ -269,6 +273,8 @@ def EpisodeLinksMenu(url, title, type):
 	# If there are no channels, warn the user
 	if len(oc) == 0 and 'disabled' in links:
 		return ObjectContainer(header=title, message=L('DisabledWarning'))
+	if len(oc) == 0 and 'dot_blocked' in links:
+		return ObjectContainer(header=title, message=L('DotBlockedWarning'))
 	if len(oc) == 0:
 		return ObjectContainer(header=title, message=L('SourceWarning'))
 

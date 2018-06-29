@@ -1,6 +1,6 @@
 ################################################################################
 TITLE = L('Title')
-VERSION = '0.10' # Release notation (x.y - where x is major and y is minor)
+VERSION = '0.11' # Release notation (x.y - where x is major and y is minor)
 GITHUB_REPOSITORY = 'coder-alpha/DesiTelly.bundle'
 PREFIX = "/video/desitelly"
 ################################################################################
@@ -77,6 +77,11 @@ ZEEMUZIC = 'Zee Muzic'
 # Added by Coder-Alpha
 ANDTV = '& Tv'
 EPIC = 'EPIC'
+
+# Yo-Desi
+COLORSMARATHI = 'Colors Marathi'
+COLORSBANGLA = 'Colors Bangla'
+ZEEYUVA = 'Zee Yuva'
 
 # DesiBoxTv
 ANDTV2 = 'And TV'
@@ -159,13 +164,18 @@ def GetSupportedChannels():
 		MTVIN2.lower(),
 		ZINDAGITV2.lower(),
 		EPIC.lower(),
+		COLORSMARATHI.lower(),
+		COLORSBANGLA.lower(),
+		ZEEYUVA.lower(),
+		ZEEMARATHI.lower(),
+		ZEEBANGLA.lower(),
 		TV_NEWS.lower()
 	]
 
 ####################################################################################################
 	
 def GetThumb(channel):
-	icon = R('icon-indiantv.png')
+	icon = R('icon-no-thumb.png')
 
 	if channel == STARPLUS.lower():
 		icon = R('icon-starplus.png')

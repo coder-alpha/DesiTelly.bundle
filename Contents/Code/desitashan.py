@@ -18,40 +18,44 @@ MC = messages.NewMessageContainer(common.PREFIX, common.TITLE)
 @route(PREFIX + '/desi-tashan/channels')
 def ChannelsMenu(url):
 	oc = ObjectContainer(title2=SITETITLE)
+	HTTP.Headers['Referer'] = SITEURL
+	
+	try:
+		html = HTML.ElementFromURL(url)
 
-	html = HTML.ElementFromURL(url)
-
-	for item in html.xpath("//ul[@id='menu-3']//li//a"):
-		try:
-			# Channel title
-			channel = item.xpath("text()")[0]
-	#		Log("Channel = "+channel)
-			# Channel link
-			link = item.xpath("@href")[0]
-			if link.startswith("http") == False:
-				link = SITEURL + link
-			
-			#Log("Channel Link: " + link)
-		except:
-			channel = item.xpath("./span/text()")
-			if(len(channel) != 0):
-				channel = channel[0]	
-	#			Log("Channel = "+str(channel))
-	#			Log("item "+ etree.tostring(item, pretty_print=True))
+		for item in html.xpath("//ul[@id='menu-3']//li//a"):
+			try:
+				# Channel title
+				channel = item.xpath("text()")[0]
+		#		Log("Channel = "+channel)
 				# Channel link
 				link = item.xpath("@href")[0]
 				if link.startswith("http") == False:
 					link = SITEURL + link
-			else:
+				
+				#Log("Channel Link: " + link)
+			except:
+				channel = item.xpath("./span/text()")
+				if(len(channel) != 0):
+					channel = channel[0]	
+		#			Log("Channel = "+str(channel))
+		#			Log("item "+ etree.tostring(item, pretty_print=True))
+					# Channel link
+					link = item.xpath("@href")[0]
+					if link.startswith("http") == False:
+						link = SITEURL + link
+				else:
+					continue
+
+			try:
+				image = common.GetThumb(channel.lower())
+			except:
 				continue
 
-		try:
-			image = common.GetThumb(channel.lower())
-		except:
-			continue
-
-		if channel.lower() in common.GetSupportedChannels():
-			oc.add(DirectoryObject(key=Callback(ShowsMenu, url=link, title=channel), title=channel, thumb=image))
+			if channel.lower() in common.GetSupportedChannels():
+				oc.add(DirectoryObject(key=Callback(ShowsMenu, url=link, title=channel), title=channel, thumb=image))
+	except Exception as e:
+		Log.Error(e)
 		
 	# If there are no channels, warn the user
 	if len(oc) == 0:
@@ -254,6 +258,8 @@ def EpisodeLinksMenu(url, title, type, thumb):
 	# If there are no channels, warn the user
 	if len(oc) == 0 and 'disabled' in links:
 		return ObjectContainer(header=title, message=L('DisabledWarning'))
+	if len(oc) == 0 and 'dot_blocked' in links:
+		return ObjectContainer(header=title, message=L('DotBlockedWarning'))
 	if len(oc) == 0:
 		return ObjectContainer(header=title, message=L('SourceWarning'))
 

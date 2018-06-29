@@ -24,11 +24,15 @@ MC = messages.NewMessageContainer(common.PREFIX, common.TITLE)
 @route(PREFIX + '/desirulez/typemenu')
 def TypeMenu(url):
 	oc = ObjectContainer(title2=SITETITLE)
+	HTTP.Headers['Referer'] = SITEURL
 	
-	# Add the item to the collection
-	oc.add(DirectoryObject(key=Callback(ChannelsMenu, url=url), title=L('Tv'), thumb=R('icon-default.png')))
-	oc.add(DirectoryObject(key=Callback(MovieTypeMenu, url=url), title=L('Movies'), thumb=R('icon-default.png')))
-	
+	try:
+		# Add the item to the collection
+		oc.add(DirectoryObject(key=Callback(ChannelsMenu, url=url), title=L('Tv'), thumb=R('icon-default.png')))
+		oc.add(DirectoryObject(key=Callback(MovieTypeMenu, url=url), title=L('Movies'), thumb=R('icon-default.png')))
+	except Exception as e:
+		Log.Error(e)
+		
 	# If there are no channels, warn the user
 	if len(oc) == 0:
 		return ObjectContainer(header=title, message=L('TypeWarning'))
@@ -380,6 +384,8 @@ def IntermediateMovieLinksMenu(url, title, hostlink, thumb):
 	
 	if len(oc) == 0 and 'disabled' in vidsRemoved:
 		return ObjectContainer(header=title, message=L('DisabledWarning'))
+	if len(oc) == 0 and 'dot_blocked' in links:
+		return ObjectContainer(header=title, message=L('DotBlockedWarning'))
 	if len(oc) == 0:
 		return ObjectContainer(header=title, message=L('SourceWarning'))
 	

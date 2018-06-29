@@ -30,6 +30,10 @@ def MetadataObjectForURL(url):
 		http_headers['Referer'] = url
 		page_data = HTTP.Request(url, headers=http_headers).content
 		url = re.findall(r'\'(.*api_key.*)\'', page_data)[0]
+		headers = re.findall(r'\'headers\':.*({.*}),', page_data)[0]
+		headers = json.loads(headers)
+		for h in headers:
+			http_headers[h] = headers[h]
 		http_headers['Referer'] = url
 		page_data = HTTP.Request(url, headers=http_headers).content
 		jsondata = JSON.ObjectFromString(page_data)
@@ -61,23 +65,25 @@ def MediaObjectsForURL(url):
 		http_headers['Referer'] = url
 		page_data = HTTP.Request(url, headers=http_headers).content
 		url = re.findall(r'\'(.*api_key.*)\'', page_data)[0]
+		headers = re.findall(r'\'headers\':.*({.*}),', page_data)[0]
+		headers = json.loads(headers)
+		for h in headers:
+			http_headers[h] = headers[h]
 		http_headers['Referer'] = url
 		page_data = HTTP.Request(url, headers=http_headers).content
 		jsondata = JSON.ObjectFromString(page_data)
 		#Log(jsondata)
 		sources =  jsondata['data']['details']['player']['sources']
-		#Log(sources)
-		sources = json.dumps(sources)
-		sources = sources.replace('u\'','\'')
-		file_matches = re.findall(r'{.*?}', sources)
-		for file_m in file_matches:
-			file_m = file_m.replace('u\'','\'')
-			file_m = JSON.ObjectFromString(file_m)
-			file_x = {'file':file_m['file'], 'label':str(file_m['label']), 'type':file_m['type']}
-			files.append(file_x)
+		for file_m in sources:
+			try:
+				x = int(str(file_m['label']).lower().replace('p',''))
+				file_x = {'file':file_m['file'], 'label':str(file_m['label']), 'type':file_m['type']}
+				files.append(file_x)
+			except:
+				pass
 	except:
 		pass
-		
+	
 	if len(files) == 0:
 		raise Ex.MediaNotAvailable
 
@@ -95,6 +101,8 @@ def MediaObjectsForURL(url):
 		
 	newlist = sorted(sortable_list, key=lambda k: k['label'], reverse=True)
 	media_obj = []
+	
+	#Log(newlist)
 	
 	for file in newlist:
 		furl = file['file']

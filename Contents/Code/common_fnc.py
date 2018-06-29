@@ -207,6 +207,7 @@ def CheckURLSource(url, referer, key=None, string=None, html=None, stringMatch=F
 	if string == None:
 		string = HTTP.Request(url=url, headers={'Referer': referer}).content
 		
+	page = None
 	try:
 		if string.find('dailymotion.com') != -1:
 			#Log('dailymotion')
@@ -226,8 +227,8 @@ def CheckURLSource(url, referer, key=None, string=None, html=None, stringMatch=F
 		elif string.find('vidshare.') != -1:
 			#Log('vidshare')
 			try:
-				page_data = HTML.ElementFromURL(url, headers={'Referer': referer})
-				img = page_data.xpath("//img/@src")
+				page = HTML.ElementFromURL(url, headers={'Referer': referer})
+				img = page.xpath("//img/@src")
 				if len(img) == 0:
 					url = 'disabled'
 			except:
@@ -238,9 +239,9 @@ def CheckURLSource(url, referer, key=None, string=None, html=None, stringMatch=F
 				url = 'disabled'
 		elif string.find('playwire.com') != -1:
 			#Log('playwire')
-			json = JSON.ObjectFromURL(url, headers={'Referer': referer})
+			page = JSON.ObjectFromURL(url, headers={'Referer': referer})
 			try:
-				disabled = json['disabled']['message']
+				disabled = page['disabled']['message']
 				if 'disabled' in disabled:
 					url = 'disabled'
 			except:
@@ -262,6 +263,10 @@ def CheckURLSource(url, referer, key=None, string=None, html=None, stringMatch=F
 				#Log(page)
 				if IsArrayItemInString2(BANNED_KEYWORDS, page, False):
 					url = 'disabled'
+					break
+		Log(page)
+		if page != None and '/dot/' in page:
+			url = 'dot_blocked'
 	except:
 		pass
 

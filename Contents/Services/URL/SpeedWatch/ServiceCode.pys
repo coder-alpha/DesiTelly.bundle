@@ -3,9 +3,6 @@
 
 import string, re
 
-# import Shared ServiceCode
-import jsunpack as JSP
-
 ART = 'http://i.imgur.com/GwSnkxE.jpg'
 COVER = 'http://i.imgur.com/0snKSZt.png'
 
@@ -22,26 +19,16 @@ def MetadataObjectForURL(url):
 	
 	try:
 		txt = HTTP.Request(url).content
-		JSP_codes = re.findall(r'eval\(.+\)', txt)
-		for JSP_code in JSP_codes:
-			if 'jwplayer' in JSP_code:
-				break
-		# Log(JSP_code)
-		txt = JSP.unpack(JSP_code)
-		txt = re.findall(r'{.*}\);var', txt)[0]
-		txt = re.findall(r'{.*}', txt)[0]
-		jsondata = JSON.ObjectFromString(txt)
-		thumb = jsondata['image']
-		duration = jsondata['duration']
-		summary = jsondata['abouttext']
+		thumb = re.findall(r'image:.*\"(.*)\",', txt)[0]
+		duration = re.findall(r'duration:.*\"(.*)\",', txt)[0]
 	except:
 		thumb = url
 	
 	return VideoClipObject(
 		title = title,
 		summary = summary,
-		art = Resource.ContentsOfURLWithFallback([thumb, ART]),
-		thumb = Resource.ContentsOfURLWithFallback([thumb, COVER])
+		art = Resource.ContentsOfURLWithFallback([thumb,ART]),
+		thumb = Resource.ContentsOfURLWithFallback([thumb,COVER])
 	)
 	
 ####################################################################################################
@@ -52,14 +39,8 @@ def MediaObjectsForURL(url):
 	try:
 		page_data = HTTP.Request(url).content
 		#Log(page_data)
-		JSP_codes = re.findall(r'eval\(.+\)', page_data)
-		for JSP_code in JSP_codes:
-			if 'jwplayer' in JSP_code:
-				break
-		#Log(JSP_code)
-		txt = JSP.unpack(JSP_code)
-		#Log(txt)
-		sources = re.findall(r'\[{.*}]', txt)[0]
+		sources = re.findall(r'sources:.*(\[.*\]),', page_data)[0]
+		sources = sources.replace('file','"file"').replace('label','"label"')
 		#Log(sources)
 		files = JSON.ObjectFromString(sources)
 		#Log(files)
