@@ -3,14 +3,8 @@
 
 import string, re
 
-HTTP_HEADERS = {
-	'Accept	text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-	'Accept-Encoding:	gzip, deflate',
-	'Accept-Language:	en-US,en;q=0.5',
-	'Connection:		keep-alive',
-	'Referer:		http://www.vidwatch3.me',
-	'User-Agent:		Mozilla/5.0 (Windows NT 6.1; WOW64; rv:33.0) Gecko/20100101 Firefox/33.0'
-}
+# import Shared ServiceCode	
+import jsunpack as JSP
 
 ART = 'http://i.imgur.com/GwSnkxE.jpg'
 COVER = 'http://i.imgur.com/0snKSZt.png'
@@ -28,14 +22,33 @@ def MetadataObjectForURL(url):
 	
 	try:
 		txt = HTTP.Request(url).content
-		thumb = re.findall(r'image:.*\"(.*)\",', txt)[0]
-		duration = re.findall(r'duration:.*\"(.*)\",', txt)[0]
+		if 'p,a,c,k,e,' in txt:
+			JSP_codes = re.findall(r'eval\(.+\)', txt)
+			for JSP_code in JSP_codes:
+				if 'jwplayer' in JSP_code:
+					break
+			# Log(JSP_code)
+			txt = JSP.unpack(JSP_code)
+			thumb = re.findall(r'image:\"(.*?)\"', txt)[0]
+			duration = re.findall(r'duration:\"(.*?)\"', txt)[0]
+			summaryt = re.findall(r'abouttext:\"(.*?)\"', txt)[0]
+			if summaryt != None and len(summaryt) > 0:
+				summary = summaryt
+		else:
+			thumb = re.findall(r'image:.*\"(.*)\",', txt)[0]
+			duration = re.findall(r'duration:.*\"(.*)\",', txt)[0]
 	except:
 		thumb = url
+		
+	try:
+		duration = int(duration)*1000
+	except:
+		duration = None
 	
 	return VideoClipObject(
 		title = title,
 		summary = summary,
+		duration = duration,
 		art = Resource.ContentsOfURLWithFallback([thumb,ART]),
 		thumb = Resource.ContentsOfURLWithFallback([thumb,COVER])
 	)
@@ -47,12 +60,26 @@ def MediaObjectsForURL(url):
 	files = []
 	try:
 		page_data = HTTP.Request(url).content
-		#Log(page_data)
-		sources = re.findall(r'sources:.*(\[.*\]),', page_data)[0]
-		sources = sources.replace('file','"file"').replace('label','"label"')
-		#Log(sources)
-		files = JSON.ObjectFromString(sources)
-		#Log(files)
+		if 'p,a,c,k,e,' in page_data:
+			#Log(page_data)
+			JSP_codes = re.findall(r'eval\(.+\)', page_data)
+			for JSP_code in JSP_codes:
+				if 'jwplayer' in JSP_code:
+					break
+			#Log(JSP_code)
+			txt = JSP.unpack(JSP_code)
+			#Log(txt)
+			sources = re.findall(r'\[{.*}]', txt)[0]
+			#Log(sources)
+			files = JSON.ObjectFromString(sources)
+			#Log(files)
+		else:
+			#Log(page_data)
+			sources = re.findall(r'sources:.*(\[.*\]),', page_data)[0]
+			sources = sources.replace('file','"file"').replace('label','"label"')
+			#Log(sources)
+			files = JSON.ObjectFromString(sources)
+			#Log(files)
 	except:
 		pass
 		

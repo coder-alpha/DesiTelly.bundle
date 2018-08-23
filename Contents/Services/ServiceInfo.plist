@@ -14,108 +14,115 @@
 		<dict>
 			<key>URLPatterns</key>
 			<array>
-				<string>http://www.cloudy.ec</string>
-				<string>http://www.cloudy.ec/.+</string>
-				<string>https://www.cloudy.ec</string>
-				<string>https://www.cloudy.ec/.+</string>
+				<string>^https?://www.cloudy.ec</string>
+				<string>^https?://www.cloudy.ec/.+</string>
+				<string>^https?://www.cloudy.ec</string>
+				<string>^https?://www.cloudy.ec/.+</string>
 			</array>
 		</dict>
 	<key>Google</key>
 		<dict>
 			<key>URLPatterns</key>
 			<array>
-				<string>http://mediatv.me/.+</string>
+				<string>^https?://mediatv.me/.+</string>
 			</array>
 		</dict>
 	<key>Playwire</key>
 		<dict>
 			<key>URLPatterns</key>
 			<array>
-				<string>http://config.playwire.com</string>
-				<string>http://config.playwire.com/.+</string>
+				<string>^https?://config.playwire.com</string>
+				<string>^https?://config.playwire.com/.+</string>
 			</array>
 		</dict>
 	<key>PlayU</key>
 		<dict>
 			<key>URLPatterns</key>
 			<array>
-				<string>http://playu.net</string>
-				<string>http://playu.net/.+</string>
-				<string>http://playu.me</string>
-				<string>http://playu.me/.+</string>
-				<string>http://dramatime.me</string>
-				<string>http://dramatime.me/.+</string>
-				<string>http://dl1.playu.me</string>
-				<string>http://dl1.playu.me/.+</string>
-				<string>http://dl1.playu.net</string>
-				<string>http://dl1.playu.net/.+</string>
+				<string>^https?://playu.net</string>
+				<string>^https?://playu.net/.+</string>
+				<string>^https?://playu.me</string>
+				<string>^https?://playu.me/.+</string>
+				<string>^https?://dramatime.me</string>
+				<string>^https?://dramatime.me/.+</string>
+				<string>^https?://dl1.playu.me</string>
+				<string>^https?://dl1.playu.me/.+</string>
+				<string>^https?://dl1.playu.net</string>
+				<string>^https?://dl1.playu.net/.+</string>
 			</array>
 		</dict>
 	<key>SpeedWatch</key>
 		<dict>
 			<key>URLPatterns</key>
 			<array>
-				<string>http://speedwatch.us/.+</string>
+				<string>^https?://speedwatch.us/.+</string>
+			</array>
+		</dict>
+	<key>TheVideoBee</key>
+		<dict>
+			<key>URLPatterns</key>
+			<array>
+				<string>^https?://thevideobee.to/.+</string>
 			</array>
 		</dict>
 	<key>TunePK</key>
 		<dict>
 			<key>URLPatterns</key>
 			<array>
-				<string>https://tune.pk/.+</string>
-				<string>https://embed.tune.pk/.+</string>
+				<string>^https?://tune.pk/.+</string>
+				<string>^https?://embed.tune.pk/.+</string>
 			</array>
 		</dict>
 	<key>Vidoza</key>
 		<dict>
 			<key>URLPatterns</key>
 			<array>
-				<string>http://vidoza.+</string>
+				<string>^https?://vidoza.+</string>
 			</array>
 		</dict>
 	<key>DailyTv</key>
 		<dict>
 			<key>URLPatterns</key>
 			<array>
-				<string>http://dailytv.co+</string>
+				<string>^https?://dailytv.co+</string>
 			</array>
 		</dict>
 	<key>Vidshare</key>
 		<dict>
 			<key>URLPatterns</key>
 			<array>
-				<string>http://vidshare.us</string>
-				<string>http://vidshare.us/.+</string>
+				<string>^https?://vidshare.us</string>
+				<string>^https?://vidshare.us/.+</string>
 			</array>
 		</dict>
 	<key>VidWatch</key>
 		<dict>
 			<key>URLPatterns</key>
 			<array>
-				<string>http://vidwatch.+</string>
-				<string>http://vidwatch3.+</string>
+				<string>^https?://vidwatch.+</string>
+				<string>^https?://vidwatch3.+</string>
 			</array>
 		</dict>
 	<key>VMG</key>
 		<dict>
 			<key>URLPatterns</key>
 			<array>
-				<string>http://www.vmg.host</string>
-				<string>http://www.vmg.host/.+</string>
+				<string>^https?://www.vmg.host</string>
+				<string>^https?://www.vmg.host/.+</string>
 			</array>
 		</dict>
 	<key>WatchVideo</key>
 		<dict>
 			<key>URLPatterns</key>
 			<array>
-				<string>http://watchvideo.+</string>
+				<string>^https?://watchvideo.+</string>
 			</array>
 		</dict>
 	<key>TvLogy</key>
 		<dict>
 			<key>URLPatterns</key>
 			<array>
-				<string>http://tvlogy.to/.+</string>
+				<string>^https?://tvlogy.to/.+</string>
 			</array>
 		</dict>
 	</dict>

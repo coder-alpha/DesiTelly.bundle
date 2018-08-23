@@ -423,6 +423,7 @@ def MovieLinksMenu(url, title, type, key=None):
 		return ObjectContainer(header=title, message=L('SourceWarning'))
 		
 	links = []
+	working = []
 
 	for item in items:
 		try:
@@ -449,12 +450,23 @@ def MovieLinksMenu(url, title, type, key=None):
 				url = link, 
 				title = videosite, 
 				thumb = Resource.ContentsOfURLWithFallback(thumb, fallback=R(ICON))))
+			working.append(link)
+			
+		elif link == 'errored':
+			oc.add(DirectoryObject(title='%s%s' % (videosite, ' - Errored'), summary=summary, key=Callback(common_fnc.MyMessage, title='Info', msg='Video Error'), thumb=Resource.ContentsOfURLWithFallback(thumb, fallback=R(ICON))))
+		elif link == 'disabled':
+			oc.add(DirectoryObject(title='%s%s' % (videosite, ' - Unavailable'), summary=summary, key=Callback(common_fnc.MyMessage, title='Info', msg='Video Unavailable'), thumb=Resource.ContentsOfURLWithFallback(thumb, fallback=R(ICON))))
+		elif link == 'removed':
+			oc.add(DirectoryObject(title='%s%s' % (videosite, ' - Removed'), summary=summary, key=Callback(common_fnc.MyMessage, title='Info', msg='Video Removed'), thumb=Resource.ContentsOfURLWithFallback(thumb, fallback=R(ICON))))
 
 	# If there are no channels, warn the user
-	if len(oc) == 0 and 'disabled' in links:
+	if len(working) == 0 and 'disabled' in links or 'errored' in links:
 		return ObjectContainer(header=title, message=L('DisabledWarning'))
-	if len(oc) == 0:
+	if len(working) == 0 and 'dot_blocked' in links:
+		return ObjectContainer(header=title, message=L('DotBlockedWarning'))
+	if len(working) == 0:
 		return ObjectContainer(header=title, message=L('SourceWarning'))
+
 
 	return oc
 	
@@ -477,6 +489,8 @@ def EpisodeLinksMenu(url, title, type, quality, key=None):
 	links = []
 
 	OPR = ''
+	
+	working = []
 
 	for item in items:
 		
@@ -517,18 +531,37 @@ def EpisodeLinksMenu(url, title, type, quality, key=None):
 				link = "desitelly://" + E(JSON.StringFromObject({"title": videosite, "urls": [link], "thumb": thumb, "use_openload_pairing": Prefs['use_openload_pairing']}))
 				
 			links.append(URLService.NormalizeURL(link))
-			oc.add(VideoClipObject(
-				url = link, 
-				title = '%s%s' % (videosite, OPR),
-				thumb = Resource.ContentsOfURLWithFallback(thumb, fallback=R(ICON)),
-				summary = summary,
-				originally_available_at = originally_available_at))
+			
+			if link not in working:
+				oc.add(VideoClipObject(
+					url = link, 
+					title = '%s%s' % (videosite, OPR),
+					thumb = Resource.ContentsOfURLWithFallback(thumb, fallback=R(ICON)),
+					summary = summary,
+					originally_available_at = originally_available_at))
+				working.append(link)
+			else:
+				oc.add(VideoClipObject(
+					url = link + '?f=f', 
+					title = '%s%s%s' % (videosite, OPR, ' (duplicate)'),
+					thumb = Resource.ContentsOfURLWithFallback(thumb, fallback=R(ICON)),
+					summary = summary,
+					originally_available_at = originally_available_at))
+				working.append(link)
+			
+		elif link == 'errored':
+			oc.add(DirectoryObject(title='%s%s' % (videosite, ' - Errored'), summary=summary, key=Callback(common_fnc.MyMessage, title='Info', msg='Video Error'), thumb=Resource.ContentsOfURLWithFallback(thumb, fallback=R(ICON))))
+		elif link == 'disabled':
+			oc.add(DirectoryObject(title='%s%s' % (videosite, ' - Unavailable'), summary=summary, key=Callback(common_fnc.MyMessage, title='Info', msg='Video Unavailable'), thumb=Resource.ContentsOfURLWithFallback(thumb, fallback=R(ICON))))
+		elif link == 'removed':
+			oc.add(DirectoryObject(title='%s%s' % (videosite, ' - Removed'), summary=summary, key=Callback(common_fnc.MyMessage, title='Info', msg='Video Removed'), thumb=Resource.ContentsOfURLWithFallback(thumb, fallback=R(ICON))))
 	
 	# If there are no channels, warn the user
-
-	if len(oc) == 0 and 'disabled' in links:
+	if len(working) == 0 and ('disabled' in links or 'errored' in links):
 		return ObjectContainer(header=title, message=L('DisabledWarning'))
-	if len(oc) == 0:
+	if len(working) == 0 and 'dot_blocked' in links:
+		return ObjectContainer(header=title, message=L('DotBlockedWarning'))
+	if len(working) == 0:
 		return ObjectContainer(header=title, message=L('SourceWarning'))
 
 	return oc

@@ -227,6 +227,8 @@ def EpisodeLinksMenu(url, title, type, thumb):
 	links = []
 	
 	OPR = ''
+	
+	working = []
 
 	for item in items:
 		
@@ -267,19 +269,36 @@ def EpisodeLinksMenu(url, title, type, thumb):
 			elif link.find('openload') != -1 and Prefs['use_openload_pairing'] == True:
 				link = "desitelly://" + E(JSON.StringFromObject({"title": videosite, "urls": [link], "thumb": thumb, "use_openload_pairing": Prefs['use_openload_pairing']}))
 			
-			oc.add(VideoClipObject(
-				url = link,
-				title = '%s%s' % (videosite, OPR),
-				thumb = Resource.ContentsOfURLWithFallback(thumb, fallback=R(ICON)),
-				art = Resource.ContentsOfURLWithFallback(thumb, fallback=R(ART)),
-				summary = summary))
+			if link not in working:
+				oc.add(VideoClipObject(
+					url = link,
+					title = '%s%s' % (videosite, OPR),
+					thumb = Resource.ContentsOfURLWithFallback(thumb, fallback=R(ICON)),
+					art = Resource.ContentsOfURLWithFallback(thumb, fallback=R(ART)),
+					summary = summary))
+				working.append(link)
+			else:
+				oc.add(VideoClipObject(
+					url = link + '?f=f',
+					title = '%s%s%s' % (videosite, OPR, ' (duplicate)'),
+					thumb = Resource.ContentsOfURLWithFallback(thumb, fallback=R(ICON)),
+					art = Resource.ContentsOfURLWithFallback(thumb, fallback=R(ART)),
+					summary = summary))
+				working.append(link)
+				
+		elif link == 'errored':
+			oc.add(DirectoryObject(title='%s%s' % (videosite, ' - Errored'), summary=summary, key=Callback(common_fnc.MyMessage, title='Info', msg='Video Error'), thumb=Resource.ContentsOfURLWithFallback(thumb, fallback=R(ICON))))
+		elif link == 'disabled':
+			oc.add(DirectoryObject(title='%s%s' % (videosite, ' - Unavailable'), summary=summary, key=Callback(common_fnc.MyMessage, title='Info', msg='Video Unavailable'), thumb=Resource.ContentsOfURLWithFallback(thumb, fallback=R(ICON))))
+		elif link == 'removed':
+			oc.add(DirectoryObject(title='%s%s' % (videosite, ' - Removed'), summary=summary, key=Callback(common_fnc.MyMessage, title='Info', msg='Video Removed'), thumb=Resource.ContentsOfURLWithFallback(thumb, fallback=R(ICON))))
 	
 	# If there are no channels, warn the user
-	if len(oc) == 0 and 'disabled' in links:
+	if len(working) == 0 and 'disabled' in links or 'errored' in links:
 		return ObjectContainer(header=title, message=L('DisabledWarning'))
-	if len(oc) == 0 and 'dot_blocked' in links:
+	if len(working) == 0 and 'dot_blocked' in links:
 		return ObjectContainer(header=title, message=L('DotBlockedWarning'))
-	if len(oc) == 0:
+	if len(working) == 0:
 		return ObjectContainer(header=title, message=L('SourceWarning'))
 
 	return oc

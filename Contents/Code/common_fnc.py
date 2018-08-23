@@ -7,6 +7,7 @@ GOOD_RESPONSE_CODES = ['200','206']
 
 BANNED_KEYWORDS = ['File Does not Exist','Has Been Removed','Content removed','Content rejected','Content removed','Content rejected','This video got removed','File was deleted','We are sorry','copyright violation','File Not Found']
 
+MC = common.NewMessageContainer(common.PREFIX, common.TITLE)
 
 ####################################################################################################
 # Get HTTP response code (200 == good)
@@ -219,6 +220,13 @@ def CheckURLSource(url, referer, key=None, string=None, html=None, stringMatch=F
 			page = HTTP.Request(url, headers={'Referer': referer}).content
 			if 'Content removed' in page or 'Content rejected' in page or 'This video got removed' in page or 'ERROR' in page:
 				url = 'disabled'
+		elif string.find('thevideobee.') != -1:
+			#Log('vmg')
+			page = HTTP.Request(url, headers={'Referer': referer}).content
+			if 'no longer available' in page or 'has been deleted' in page:
+				url = 'disabled'
+			elif 'Video encoding error' in page:
+				url = 'errored'
 		elif string.find('tune.') != -1:
 			#Log('tune')
 			page = HTTP.Request(url, headers={'Referer': referer}).content
@@ -264,7 +272,7 @@ def CheckURLSource(url, referer, key=None, string=None, html=None, stringMatch=F
 				if IsArrayItemInString2(BANNED_KEYWORDS, page, False):
 					url = 'disabled'
 					break
-		Log(page)
+		#Log(page)
 		if page != None and '/dot/' in page:
 			url = 'dot_blocked'
 	except:
@@ -455,3 +463,8 @@ def Pins(title):
 	)
 
 	return oc
+	
+####################################################################################################
+@route(common.PREFIX + "/MyMessage")
+def MyMessage(title, msg, **kwargs):	
+	return MC.message_container(title,msg)

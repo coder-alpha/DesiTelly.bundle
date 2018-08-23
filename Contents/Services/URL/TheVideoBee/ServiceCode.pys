@@ -17,7 +17,7 @@ def NormalizeURL(url):
 ####################################################################################################
 def MetadataObjectForURL(url):
 	
-	title = 'SpeedWatch Redirect Page'
+	title = 'TheVideoBee Redirect Page'
 	summary = 'Summary info Page'
 	
 	try:
@@ -25,30 +25,22 @@ def MetadataObjectForURL(url):
 		if 'p,a,c,k,e,' in txt:
 			JSP_codes = re.findall(r'eval\(.+\)', txt)
 			for JSP_code in JSP_codes:
-				if 'jwplayer' in JSP_code:
+				if 'vplayer' in JSP_code:
 					break
 			# Log(JSP_code)
 			txt = JSP.unpack(JSP_code)
-			thumb = re.findall(r'image:\"(.*?)\"', txt)[0]
-			duration = re.findall(r'duration:\"(.*?)\"', txt)[0]
-			summaryt = re.findall(r'abouttext:\"(.*?)\"', txt)[0]
+			thumb = re.findall(r'poster:\"(.*?)\",', txt)[0]
+			summaryt = re.findall(r'title:\"(.*?)\"', txt)[0]
 			if summaryt != None and len(summaryt) > 0:
 				summary = summaryt
 		else:
 			thumb = re.findall(r'image:.*\"(.*)\",', txt)[0]
-			duration = re.findall(r'duration:.*\"(.*)\",', txt)[0]
 	except:
 		thumb = url
-		
-	try:
-		duration = int(duration)*1000
-	except:
-		duration = None
 	
 	return VideoClipObject(
 		title = title,
 		summary = summary,
-		duration = duration,
 		art = Resource.ContentsOfURLWithFallback([thumb,ART]),
 		thumb = Resource.ContentsOfURLWithFallback([thumb,COVER])
 	)
@@ -64,29 +56,23 @@ def MediaObjectsForURL(url):
 			#Log(page_data)
 			JSP_codes = re.findall(r'eval\(.+\)', page_data)
 			for JSP_code in JSP_codes:
-				if 'jwplayer' in JSP_code:
+				if 'vplayer' in JSP_code:
 					break
 			#Log(JSP_code)
 			txt = JSP.unpack(JSP_code)
-			#Log(txt)
-			sources = re.findall(r'\[{.*}]', txt)[0]
+			sources = re.findall(r'sources:\[(.*?)\],', txt)[0]
+			sources = sources.split(",")
 			#Log(sources)
-			files = JSON.ObjectFromString(sources)
-			#Log(files)
-		else:
-			#Log(page_data)
-			sources = re.findall(r'sources:.*(\[.*\]),', page_data)[0]
-			sources = sources.replace('file','"file"').replace('label','"label"')
-			#Log(sources)
-			files = JSON.ObjectFromString(sources)
+			for s in sources:
+				if '.mp4' in s:
+					s = s.replace('"','')
+					files.append({'label': '720', 'file':s})
 			#Log(files)
 	except:
 		pass
 		
 	if len(files) == 0:
 		raise Ex.MediaNotAvailable
-	
-	#Log(files)
 	
 	sortable_list = []
 	for file in files:
@@ -147,7 +133,7 @@ def MediaObjectsForURL(url):
 ####################################################################################################
 @indirect
 def PlayVideo(url):
-
+	
 	if '.m3u8' in url:
 		return IndirectResponse(VideoClipObject, key=HTTPLiveStreamURL(url))
 	else:
