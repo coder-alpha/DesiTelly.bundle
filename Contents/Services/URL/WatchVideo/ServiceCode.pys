@@ -1,94 +1,103 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import demjson, re
+"""WatchVideo.us Service Code"""
 
-HTTP_HEADERS = {
-	'Accept	text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-	'Accept-Encoding:	gzip, deflate',
-	'Accept-Language:	en-US,en;q=0.5',
-	'Connection:		keep-alive',
-	'Referer:		http://watchvideos.us',
-	'User-Agent:		Mozilla/5.0 (Windows NT 6.1; WOW64; rv:33.0) Gecko/20100101 Firefox/33.0'
-}
+import jsunpack as Unpack
 
-ART = 'http://i.imgur.com/GwSnkxE.jpg'
-COVER = 'http://i.imgur.com/0snKSZt.png'
+USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'
+RE_PACKED = Regex(r"<script type=.text/javascript.>(eval\(function\(p,a,c,k,e,.+\|file\|.+\.split\('\|'\).*?\)\))")
+RE_NORM = Regex(r'(https?://(?:www\.)?\w+\.\w+)(?:/embed\-|/)(\w+)')
+RE_TITLE = Regex(r'\[/IMG\](\]?[^\[]+)\[/URL\]')
+RE_TITLE2 = Regex(r'title\>[^\<]+\</title')
+RE_CTITLE = Regex(r'^[Ww]atch +?(.+?)$')
+RE_THUMB = Regex(r'["\']?image["\']? *?\: *?["\'](http[^"\']+)["\']')
+RE_DUR = Regex(r'["\']?duration["\']? *?\: *?["\'](\d+)["\']')
+RE_HLS = Regex(r'["\']?file["\']? *?\: *?["\'](http[^"\']+\.m3u8)["\']')
+RE_SOURCES = Regex(r'(?is)bandwidth\=(\d+).*?resolution\=\d+x(\d+).*?(http.+?\.m3u8)')
+FALLBACK = 'http://i.imgur.com/75YO83o.jpg'
 
-########################################################################################
+####################################################################################################
 def NormalizeURL(url):
 
-	return url
+	if 'watchvideo://' in url:
+		url = get_data(url)['url']
+	r = RE_NORM.search(url)
+	return r.group(1) + '/' + r.group(2) if r else url
 
 ####################################################################################################
 def MetadataObjectForURL(url):
-	
-	try:
-		page = HTTP.Request(url).content
-		page_data = HTML.ElementFromString(page)
-		jsblock = page_data.xpath("//script[contains(text(),'jwplayer(\"vplayer\").setup')]//text()")[0]
-		jsonValue = None
-		jsonValue = ((jsblock.split(');',1)[0]).strip()).lstrip("jwplayer(\"vplayer\").setup(")
-		#Log("JSON Value = "+jsonValue)
-		if (jsonValue is None):
-			raise
- 		value = demjson.decode(jsonValue)
- 		thumb = value['image']
-		sources = value['sources']
-	except:
-		thumb = url
+
+	if 'watchvideo://' in url:
+		url = get_data(url)['url']
 		
-	title = 'WatchVideo Redirect Page'
-	summary = 'Summary info Page'
-	
+	page = get_page(url)
+
+	t1 = RE_TITLE.search(page)
+	t2 = RE_TITLE2.search(page)
+	if t1:
+		title = t1.group(1)
+	elif t2:
+		title = RE_CTITLE.sub(r'\1', t2.group(1).strip())
+	else:
+		raise Ex.MediaExpired
+
+	page = get_packed_page(page)
+	rt = RE_THUMB.search(page)
+	rd = RE_DUR.search(page)
+
+	thumb = rt.group(1) if rt else FALLBACK
+
 	return VideoClipObject(
-		title = title,
-		summary = summary + '\n\n',
-		art = Resource.ContentsOfURLWithFallback([thumb,ART]),
-		thumb = Resource.ContentsOfURLWithFallback([thumb,COVER])
-	)
-	
+		title=title.strip(),
+		duration=int(rd.group(1)) * 1000 if rd else None,
+		thumb=Resource.ContentsOfURLWithFallback([thumb, FALLBACK]),
+		source_title='WatchVideo'
+		)
+
 ####################################################################################################
+@deferred
 def MediaObjectsForURL(url):
 
-	sources = []
-	try:
-		page = HTTP.Request(url).content
-		page_data = HTML.ElementFromString(page)
-		jsblock = page_data.xpath("//script[contains(text(),'jwplayer(\"vplayer\").setup')]//text()")[0]
-		jsonValue = None
-		jsonValue = ((jsblock.split(');',1)[0]).strip()).lstrip("jwplayer(\"vplayer\").setup(")
-		#Log("JSON Value = "+jsonValue)
-		if (jsonValue is None):
-			raise
- 		value = demjson.decode(jsonValue)
-		sources = value['sources']
-	except:
+	if 'watchvideo://' in url:
+		url = get_data(url)['url']
+		
+	hls = RE_HLS.search(get_packed_page(get_page(url)))
+	if not hls:
+		raise Ex.MediaExpired
+
+	sources = RE_SOURCES.findall(get_page(hls.group(1)))
+	if not sources:
 		raise Ex.MediaNotAvailable
-	
+
+	sources = [(int(r), int(b)/1000, u) for (b, r, u) in sources]
+
 	return [
 		MediaObject(
-			container = Container.MP4,
-			#video_codec = VideoCodec.H264,
-			video_resolution = str(sources[1]['label']),
-			audio_codec = AudioCodec.AAC,
-			audio_channels = 2,
-			optimized_for_streaming = True,
-			parts = [PartObject(key=Callback(PlayVideo, url=sources[1]['file']))]
-		),
-		MediaObject(
-			container = Container.MP4,
-			#video_codec = VideoCodec.H264,
-			video_resolution = str(sources[2]['label']),
-			audio_codec = AudioCodec.AAC,
-			audio_channels = 2,
-			optimized_for_streaming = True,
-			parts = [PartObject(key=Callback(PlayVideo, url=sources[2]['file']))]
-		)
-	]
+			video_resolution=str(res),
+			bitrate=bit,
+			audio_channels=2,
+			optimized_for_streaming=True,
+			parts=[
+				PartObject(key=HTTPLiveStreamURL(src))
+				],
+			) for res, bit, src in reversed(sorted(sources))
+		]
 
 ####################################################################################################
-@indirect
-def PlayVideo(url):
+def get_page(url):
+	try:
+		page = HTTP.Request(url, headers={'User-Agent': USER_AGENT}, cacheTime=10).content
+	except:
+		raise Ex.MediaNotAvailable
+	return page
+
+####################################################################################################
+def get_packed_page(page):
+	packed = RE_PACKED.search(page)
+	return Unpack(packed.group(1)) if packed else page
+
+####################################################################################################
+def get_data(url):
+	return JSON.ObjectFromString(D(url.split('watchvideo://')[1]))
 	
-	return IndirectResponse(VideoClipObject, key=url)

@@ -36,7 +36,7 @@ def MetadataObjectForURL(url):
 		else:
 			thumb = re.findall(r'image:.*\"(.*)\",', txt)[0]
 	except:
-		thumb = url
+		thumb = ''
 	
 	return VideoClipObject(
 		title = title,

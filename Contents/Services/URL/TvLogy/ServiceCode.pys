@@ -28,7 +28,7 @@ def MetadataObjectForURL(url):
 		img = match = re.findall(r'http.*jpg', page_data)[0]
 		thumb = img
 	except:
-		thumb = url
+		thumb = ''
 
 	title = 'TvLogy Redirect Page'
 	summary = 'Summary info Page'

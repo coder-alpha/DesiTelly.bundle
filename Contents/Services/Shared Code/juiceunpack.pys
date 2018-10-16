@@ -1,43 +1,52 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-	urlresolver XBMC Addon
-	Copyright (C) 2013 Bstrdsmkr
+import re, json, base64
 
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
+Juice = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+def juicyCodeHtml(e):
+	try:
+		e = re.findall(r'JuicyCodes.Run\(([^\)]+)', e, re.IGNORECASE)[0]
+		e = re.sub(r'\"\s*\+\s*\"','', e)
+		e = re.sub(r'[^A-Za-z0-9+\\/=]','', e)
+		
+		#print 'step 1 done !'
+		#print 'e = %s' % e
+		
+	except Exception as e:
+		print e
+		return None
 
-	You should have received a copy of the GNU General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	t = ""
+	n=r=i=s=o=u=a=f=0
 
-	Adapted for use in xbmc from:
-	https://github.com/einars/js-beautify/blob/master/python/jsbeautifier/unpackers/packer.py
+	while f < len(e):
+		try:
+			s = Juice.index(e[f]);f+=1; 
+			o = Juice.index(e[f]);f+=1; 
+			u = Juice.index(e[f]);f+=1; 
+			a = Juice.index(e[f]);f+=1; 
+			n = s << 2 | o >> 4; r = (15 & o) << 4 | u >> 2; i = (3 & u) << 6 | a
+			t += chr(n)
+			if 64 != u: t += chr(r)
+			if 64 != a: t += chr(i)
+		except:
+			continue
+		pass
+		
+	#print 'step 2 done !'
+	#print t
+
+	try:
+		t = unpack(t)
+		t = unicode(t, 'utf-8')
+	except Exception as e:
+		print e
+		t = None
 	
-	usage:
-
-	if detect(some_string):
-		unpacked = unpack(some_string)
-
-
-Unpacker for Dean Edward's p.a.c.k.e.r
-"""
-
-import re, random, base64
-
-def detect(source):
-	"""Detects whether `source` is P.A.C.K.E.R. coded."""
-	source = source.replace(' ', '')
-	if re.search('eval\(function\(p,a,c,k,e,(?:r|d)', source): return True
-	else: return False
-
+	return t
+	
 def unpack(source):
 	"""Unpacks P.A.C.K.E.R. packed js code."""
 	payload, symtab, radix, count = filterargs(source)
@@ -56,17 +65,17 @@ def unpack(source):
 		return symtab[unbase(word)] or word
 
 	source = re.sub(r'\b\w+\b', lookup, payload)
-	source = source.replace("\\'", "'")
-
 	return replacestrings(source)
 
 def filterargs(source):
 	"""Juice from a source file the four args needed by decoder."""
-	argsregex = (r"}\('(.*)', *(\d+), *(\d+), *'(.*?)'\.split\('\|'\)")
+	argsregex = (r"}\s*\('(.*)',\s*(.*?),\s*(\d+),\s*'(.*?)'\.split\('\|'\)")
 	args = re.search(argsregex, source, re.DOTALL).groups()
 
 	try:
-		return args[0], args[3].split('|'), int(args[1]), int(args[2])
+		payload, radix, count, symtab = args
+		radix = 36 if not radix.isdigit() else int(radix)
+		return payload, symtab.split('|'), radix, int(count)
 	except ValueError:
 		raise UnpackingError('Corrupted p.a.c.k.e.r. data.')
 
@@ -84,14 +93,6 @@ def replacestrings(source):
 		return source[startpoint:]
 	return source
 
-def set_myuid(str):#line:1
-	result = []
-	while str:
-		result.append(chr(str % 128))
-		str >>= 7
-	return ''.join(reversed(result))
-
-
 
 class Unbaser(object):
 	"""Functor for a given base. Will efficiently convert
@@ -101,7 +102,7 @@ class Unbaser(object):
 		95: (' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 			 '[\]^_`abcdefghijklmnopqrstuvwxyz{|}~')
 	}
-	
+
 	def __init__(self, base):
 		self.base = base
 
@@ -135,22 +136,14 @@ class UnpackingError(Exception):
 	"""Badly packed source or general error. Argument is a
 	meaningful description."""
 	pass
-
-def test():
-	test = ''''''
-	x = unpack(test)
-	print x
-
-def jsunpack_keys():
-	#TODO: I need 1 week..., to disable this...
-	FEATURES = [
-		base64.urlsafe_b64decode('NGJlNjhkN2VhYjFmYmQxYjZmZDhhM2I4MGE2NWE5NWU='),
-		base64.urlsafe_b64decode('OGQwZTRkY2E4NmM3NzlmNDE1N2ZjMmM0NjljMzcyY2E='),
-		base64.urlsafe_b64decode('YTNkYzExMWU2NjEwNWY2Mzg3ZTk5MzkzODEzYWU0ZDU='),
-		base64.urlsafe_b64decode('YTg2MjY3M2I4ZDExMmZjMjMxMTdlNTQ4ZTdlODM5MTY='),
-		base64.urlsafe_b64decode('NDEyZThjYTNiODY0YjQ1ODA1OWY5NjNkYzU2MzNiMGE='),
-		base64.urlsafe_b64decode('ODY0YjZkZThhOWJiOGYyZmQ5N2Q3ZjZlNDEyYjY5MDI=')
-	]
-	return random.choice(FEATURES)
 	
-#test()
+def testjs():
+	js = ''''''
+	
+	#data = unwise2.unwise_process(js)
+	#print data
+		
+	html_with_unpacked_js = juicyCodeHtml(js)
+	print html_with_unpacked_js
+	
+#testjs()

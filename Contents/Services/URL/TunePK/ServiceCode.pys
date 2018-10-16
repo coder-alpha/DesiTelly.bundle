@@ -18,7 +18,7 @@ def MetadataObjectForURL(url):
 	
 	title = 'TunePK Redirect Page'
 	summary = 'Summary info Page'
-	thumb = COVER
+	thumb = ''
 	duration = 1000
 	
 	try:
@@ -37,9 +37,9 @@ def MetadataObjectForURL(url):
 		http_headers['Referer'] = url
 		page_data = HTTP.Request(url, headers=http_headers).content
 		jsondata = JSON.ObjectFromString(page_data)
-		duration =  int(jsondata['data']['details']['duration']) * 1000
 		title =  jsondata['data']['details']['video']['title']
 		thumb = jsondata['data']['details']['video']['thumb']
+		duration =  int(jsondata['data']['details']['duration']) * 1000
 	except:
 		pass
 	

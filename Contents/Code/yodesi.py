@@ -13,8 +13,8 @@ ICON = common.ICON
 
 MC = messages.NewMessageContainer(common.PREFIX, common.TITLE)
 
-SWITCH_1 = ['Flash','Yodplayer']
-SWITCH_2 = ['Google','TvLogy']
+SWITCH_1 = ['Yodplayer']
+SWITCH_2 = ['TvLogy']
 
 ####################################################################################################
 
@@ -262,7 +262,7 @@ def EpisodeLinksMenu(url, title, type, thumb):
 		links.append(link)
 
 		# Add the found item to the collection
-		if common_fnc.IsArrayItemInString2(common.VALID_SOURCES_DOMAIN, link, False) or (Prefs['allow_unknown_sources'] and URLService.ServiceIdentifierForURL(link) <> None):
+		if common_fnc.IsArrayItemInString2(common.VALID_SOURCES_DOMAIN, link, False) and not common_fnc.IsArrayItemInString2(common.DISABLED_SOURCES, link, False) or (Prefs['allow_unknown_sources'] and URLService.ServiceIdentifierForURL(link) <> None):
 		
 			if link.find('openload') != -1 and not common_fnc.is_uss_installed() and Prefs['use_openload_pairing'] == False:
 				return MC.message_container('Error', 'UnSupportedServices.bundle Required')
@@ -286,6 +286,14 @@ def EpisodeLinksMenu(url, title, type, thumb):
 					summary = summary))
 				working.append(link)
 				
+		elif common_fnc.IsArrayItemInString2(common.VALID_SOURCES_DOMAIN, link, False) == True:
+			if Prefs["use_debug"]:
+				Log("**** ITEM IN DISABLED SOURCES ***")
+			pass
+		elif common_fnc.IsArrayItemInString2(common.DISABLED_SOURCES, link, False) == False:
+			if Prefs["use_debug"]:
+				Log("**** ITEM NOT IN VALID_SOURCES_DOMAIN ***")
+			pass
 		elif link == 'errored':
 			oc.add(DirectoryObject(title='%s%s' % (videosite, ' - Errored'), summary=summary, key=Callback(common_fnc.MyMessage, title='Info', msg='Video Error'), thumb=Resource.ContentsOfURLWithFallback(thumb, fallback=R(ICON))))
 		elif link == 'disabled':

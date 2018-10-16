@@ -154,11 +154,19 @@ def GetTvURLSource(url, referer, date='', key=None):
 		elif len(html.xpath("//iframe[contains(@src,'openload.')]/@src")) > 0:
 			#Log('openload')
 			url = html.xpath("//iframe[contains(@src,'openload.co')]/@src")[0]
-		elif len(html.xpath("//iframe[contains(@src,'tune.')]/@src")) > 0:
+		elif string.find('tune.pk') != -1:
 			#Log('tune')
-			url = html.xpath("//iframe[contains(@src,'tune.')]/@src")[0]
-			html = HTML.ElementFromURL(url=url, headers={'Referer': url})
-			url = html.xpath("//iframe[contains(@src,'tune.')]/@src")[0]
+			try:
+				url = html.xpath("//script[contains(@src,'tune.')]/@src")[0]
+			except:
+				url = html.xpath("//iframe[contains(@src,'tune.')]/@src")[0]
+				html = HTML.ElementFromURL(url=url, headers={'Referer': url})
+				url = html.xpath("//iframe[contains(@src,'tune.')]/@src")[0]
+				
+			if 'load.js' in url:
+				url = 'https://tune.pk/player/embed_player.php?vid=%s&folder=&width=595&height=430&autoplay=no' % re.findall(r'vid=(.*?)&', url)[0]
+				html = HTML.ElementFromURL(url=url, headers={'Referer': url})
+				url = html.xpath("//iframe[contains(@src,'tune.')]/@src")[0]
 		else:
 			#Log('Undefined src')
 			orig_url = url
@@ -197,7 +205,16 @@ def GetTvURLSource(url, referer, date='', key=None):
 	url = CheckURLSource(url=url, referer=referer, key=key, string=string, html=html)
 	
 	if Prefs["use_debug"]:
-		Log("Post CheckURLSource")
+		Log("Post CheckURLSource-a")
+		Log("common_fnc.GetTvURLSource : %s" % url)
+		
+	if 'watchvideo18.' in url:
+		url = "watchvideo://" + E(JSON.StringFromObject({"url": url}))
+	elif 'vidwatch.' in url:
+		url = "vidwatch://" + E(JSON.StringFromObject({"url": url}))
+		
+	if Prefs["use_debug"]:
+		Log("Post CheckURLSource-b")
 		Log("common_fnc.GetTvURLSource : %s" % url)
 
 	return url

@@ -1,6 +1,6 @@
 ################################################################################
 TITLE = L('Title')
-VERSION = '0.12' # Release notation (x.y - where x is major and y is minor)
+VERSION = '0.13' # Release notation (x.y - where x is major and y is minor)
 GITHUB_REPOSITORY = 'coder-alpha/DesiTelly.bundle'
 PREFIX = "/video/desitelly"
 ################################################################################
@@ -92,11 +92,13 @@ ZINDAGITV2 = 'Zindagi'
 #DesiTashan
 TV_NEWS = 'TV News'
 
-VALID_SOURCES_DOMAIN = ['dailymotion.','playwire.','vidshare.','openload.','playu.', 'cloudy.', 'vmg.','watchvideo','tvlogy','google','mediatv.','vidwatch3.','speedwatch.us','tune.pk','vidoza.','dailytv.','thevideobee']
+VALID_SOURCES_DOMAIN = ['dailymotion.','playwire.','vidshare.','openload.','playu.', 'cloudy.', 'vmg.','watchvideo','tvlogy','google','mediatv.','vidwatch','speedwatch.us','tune.pk','vidoza.','dailytv.','thevideobee','videobee','irshare','vkprime']
 
-VALID_SOURCES = ['Dailymotion','Flash Player','Flash','Playwire','Letwatch','Openload','PlayU','StreamHD','HDStream','Watchvideo','TvLogy','Google','VidWatch','Vid Watch','Vidwatch','SpeedWatch','Speed','TunePK','Tunepk','Tune','ViDoza','DailyTV','TheVideoBee']
+VALID_SOURCES = ['Dailymotion','Flash Player','Flash','Playwire','Letwatch','Openload','PlayU','StreamHD','HDStream','Watchvideo','TvLogy','Google','VidWatch','Vid Watch','Vidwatch','SpeedWatch','Speedwatch','Speed','TunePK','Tunepk','Tune','ViDoza','DailyTV','TheVideoBee','Videobee','VK Prime']
 
-VALID_SOURCES_ICONS = ['dailymotion','playwire','playwire','playwire','letwatchus','openload','playu','vmg','vmg','source-watchvideo','tvlogy','google','vidwatch','vidwatch','vidwatch','speedwatch','speedwatch','tunepk','tunepk','tunepk','vidoza','dailytv','thevideobee']
+VALID_SOURCES_ICONS = ['dailymotion','flashplayer','flashplayer','flashplayer','letwatchus','openload','playu','vmg','vmg','source-watchvideo','tvlogy','google','vidwatch','vidwatch','vidwatch','speedwatch','speedwatch','speedwatch','tunepk','tunepk','tunepk','vidoza','dailytv','thevideobee','videobee','vkprime']
+
+DISABLED_SOURCES = ['domain-defined']
 
 ####################################################################################################
 

@@ -32,10 +32,14 @@ def Start():
 @handler(PREFIX, NAME, art=ART, thumb=ICON)
 def MainMenu():
 	oc = ObjectContainer()
-	oc.add(DirectoryObject(key=Callback(yodesi.ChannelsMenu, url=yodesi.SITEURL), title=yodesi.SITETITLE, thumb=R(yodesi.SITETHUMB)))
-	oc.add(DirectoryObject(key=Callback(desitvbox.ChannelsMenu, url=desitvbox.SITEURL), title=desitvbox.SITETITLE, thumb=R(desitvbox.SITETHUMB)))
-	oc.add(DirectoryObject(key=Callback(desitashan.ChannelsMenu, url=desitashan.SITEURL), title=desitashan.SITETITLE, thumb=R(desitashan.SITETHUMB)))
-	oc.add(DirectoryObject(key=Callback(desirulez.TypeMenu, url=desirulez.SITEURL), title=desirulez.SITETITLE, thumb=R(desirulez.SITETHUMB)))
+	if Prefs['show_yodesi']:
+		oc.add(DirectoryObject(key=Callback(yodesi.ChannelsMenu, url=yodesi.SITEURL), title=yodesi.SITETITLE, thumb=R(yodesi.SITETHUMB)))
+	if Prefs['show_desitvbox']:
+		oc.add(DirectoryObject(key=Callback(desitvbox.ChannelsMenu, url=desitvbox.SITEURL), title=desitvbox.SITETITLE, thumb=R(desitvbox.SITETHUMB)))
+	if Prefs['show_desitashan']:
+		oc.add(DirectoryObject(key=Callback(desitashan.ChannelsMenu, url=desitashan.SITEURL), title=desitashan.SITETITLE, thumb=R(desitashan.SITETHUMB)))
+	if Prefs['show_desirulez']:
+		oc.add(DirectoryObject(key=Callback(desirulez.TypeMenu, url=desirulez.SITEURL), title=desirulez.SITETITLE, thumb=R(desirulez.SITETHUMB)))
 	
 	oc.add(DirectoryObject(key = Callback(common_fnc.Pins, title='Pinned Shows'), title = 'Pinned Shows', summary = 'Shows Pinned Shows.', thumb = R(common.ICON_PIN)))
 	

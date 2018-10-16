@@ -1,0 +1,117 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import string, re
+import client as CLIENT
+import juiceunpack as JU
+
+ART = 'http://i.imgur.com/GwSnkxE.jpg'
+COVER = 'http://i.imgur.com/0snKSZt.png'
+
+########################################################################################
+def NormalizeURL(url):
+
+	return url
+
+####################################################################################################
+def MetadataObjectForURL(url):
+	
+	thumb = ''
+	title = 'IRShare Redirect Page'
+	summary = 'Summary info Page'
+	page_data = None
+	
+	vars = CLIENT.request(url, output='extended', timeout='20')
+	files = []
+	
+	try:
+		page_data, h, c, http_cookies = vars
+		#Log(" ************** %s ************" % http_cookies)
+		
+		page_data = JU.juicyCodeHtml(page_data)
+		thumb = re.findall(r'poster:\"(.*?)\"', page_data)[0]
+	except:
+		pass
+	
+	return VideoClipObject(
+		title = title,
+		summary = summary,
+		art = Resource.ContentsOfURLWithFallback([thumb,ART]),
+		thumb = Resource.ContentsOfURLWithFallback([thumb,COVER])
+	)
+	
+####################################################################################################
+def MediaObjectsForURL(url):
+
+	#Log(" ************** %s ************" % url)
+	vars = CLIENT.request(url, output='extended', timeout='20')
+	files = []
+	
+	try:
+		page_data, h, c, http_cookies = vars
+		#Log(" ************** %s ************" % http_cookies)
+		
+		page_data = JU.juicyCodeHtml(page_data)
+		match = re.findall(r'\[{.+}]', page_data)[0]
+		#Log(match)
+		files = JSON.ObjectFromString(match)
+	except:
+		pass
+		
+	if len(files) == 0:
+		raise Ex.MediaNotAvailable
+	
+	sortable_list = []
+	for file in files:
+		furl = file['src']
+		res = None
+		if res == None:
+			if 'res' in file.keys():
+				res = file['res']
+				if res != '1080':
+					res = '0'+res
+			else:
+				res = '720'
+		
+		#type = file['type']
+		sortable_list.append({'label':res, 'file':furl})
+		
+	newlist = sorted(sortable_list, key=lambda k: k['label'], reverse=True)
+	media_obj = []
+	
+	for file in newlist:
+		furl = file['file']
+		res = int(file['label'])
+		#type = file['type']
+		#Log("furl ---- %s" % furl)
+		
+		if '.flv' in furl:
+			mo = MediaObject(
+					container = Container.FLV,
+					video_codec = VideoCodec.H264,
+					audio_codec = AudioCodec.AAC,
+					video_resolution = res,
+					audio_channels = 2,
+					optimized_for_streaming = True,
+					parts = [PartObject(key=Callback(PlayVideo, url=furl, http_cookies=http_cookies))]
+				)
+		else:
+			mo = MediaObject(
+					container = Container.MP4,
+					video_codec = VideoCodec.H264,
+					audio_codec = AudioCodec.AAC,
+					video_resolution = res,
+					audio_channels = 2,
+					optimized_for_streaming = True,
+					parts = [PartObject(key=Callback(PlayVideo, url=furl, http_cookies=http_cookies))]
+				)
+		
+		media_obj.append(mo)
+
+	return media_obj
+
+####################################################################################################
+@indirect
+def PlayVideo(url, http_cookies):
+
+	return IndirectResponse(VideoClipObject, key = url, http_cookies=http_cookies)

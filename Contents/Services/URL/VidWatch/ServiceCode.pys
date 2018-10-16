@@ -20,14 +20,17 @@ def MetadataObjectForURL(url):
 	title = 'VidWatch Redirect Page'
 	summary = 'Summary info Page'
 	
+	if 'vidwatch://' in url:
+		url = get_data(url)['url']
+		
 	try:
 		txt = HTTP.Request(url).content
 		if 'p,a,c,k,e,' in txt:
 			JSP_codes = re.findall(r'eval\(.+\)', txt)
 			for JSP_code in JSP_codes:
-				if 'jwplayer' in JSP_code:
+				if 'jwplayer|' in JSP_code:
 					break
-			# Log(JSP_code)
+			#Log(JSP_code)
 			txt = JSP.unpack(JSP_code)
 			thumb = re.findall(r'image:\"(.*?)\"', txt)[0]
 			duration = re.findall(r'duration:\"(.*?)\"', txt)[0]
@@ -38,7 +41,7 @@ def MetadataObjectForURL(url):
 			thumb = re.findall(r'image:.*\"(.*)\",', txt)[0]
 			duration = re.findall(r'duration:.*\"(.*)\",', txt)[0]
 	except:
-		thumb = url
+		thumb = ''
 		
 	try:
 		duration = int(duration)*1000
@@ -56,7 +59,9 @@ def MetadataObjectForURL(url):
 ####################################################################################################
 def MediaObjectsForURL(url):
 
-	#Log("url-----------" + url)
+	if 'vidwatch://' in url:
+		url = get_data(url)['url']
+		
 	files = []
 	try:
 		page_data = HTTP.Request(url).content
@@ -64,7 +69,7 @@ def MediaObjectsForURL(url):
 			#Log(page_data)
 			JSP_codes = re.findall(r'eval\(.+\)', page_data)
 			for JSP_code in JSP_codes:
-				if 'jwplayer' in JSP_code:
+				if 'jwplayer|' in JSP_code:
 					break
 			#Log(JSP_code)
 			txt = JSP.unpack(JSP_code)
@@ -152,3 +157,7 @@ def PlayVideo(url):
 		return IndirectResponse(VideoClipObject, key=HTTPLiveStreamURL(url))
 	else:
 		return IndirectResponse(VideoClipObject, key=url)
+
+####################################################################################################
+def get_data(url):
+	return JSON.ObjectFromString(D(url.split('vidwatch://')[1]))

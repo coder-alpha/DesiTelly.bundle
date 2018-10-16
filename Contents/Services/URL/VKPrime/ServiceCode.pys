@@ -17,7 +17,7 @@ def NormalizeURL(url):
 ####################################################################################################
 def MetadataObjectForURL(url):
 	
-	title = 'SpeedWatch Redirect Page'
+	title = 'VidWatch Redirect Page'
 	summary = 'Summary info Page'
 	
 	try:

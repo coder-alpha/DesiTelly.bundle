@@ -27,6 +27,13 @@
 				<string>^https?://mediatv.me/.+</string>
 			</array>
 		</dict>
+	<key>IRShare</key>
+		<dict>
+			<key>URLPatterns</key>
+			<array>
+				<string>^https?://irshare.net/.+</string>
+			</array>
+		</dict>
 	<key>Playwire</key>
 		<dict>
 			<key>URLPatterns</key>
@@ -100,7 +107,14 @@
 			<key>URLPatterns</key>
 			<array>
 				<string>^https?://vidwatch.+</string>
-				<string>^https?://vidwatch3.+</string>
+				<string>^vidwatch\:\/\/.+</string>
+			</array>
+		</dict>
+	<key>VKPrime</key>
+		<dict>
+			<key>URLPatterns</key>
+			<array>
+				<string>^https?://vkprime.+</string>
 			</array>
 		</dict>
 	<key>VMG</key>
@@ -116,6 +130,7 @@
 			<key>URLPatterns</key>
 			<array>
 				<string>^https?://watchvideo.+</string>
+				<string>^watchvideo\:\/\/.+</string>
 			</array>
 		</dict>
 	<key>TvLogy</key>

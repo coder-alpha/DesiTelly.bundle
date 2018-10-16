@@ -28,7 +28,7 @@ def MetadataObjectForURL(url):
 		sources = re.findall(r'src.*=.*\"(.*\.mp4)\"', page)[0]
  		thumb = re.findall(r'poster.*:.*\"(.*\.jpg.*)\"', page)[0]
 	except:
-		thumb = url
+		thumb = ''
 		
 	title = 'Vidoza Redirect Page'
 	summary = 'Summary info Page'

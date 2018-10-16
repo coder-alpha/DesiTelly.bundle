@@ -37,7 +37,7 @@ def MetadataObjectForURL(url):
 		sources = value['sources']
 		duration = int(value['duration'])*1000
 	except:
-		thumb = url
+		thumb = ''
 		
 	title = 'DailyTV Redirect Page'
 	summary = 'Summary info Page'
