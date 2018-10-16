@@ -338,7 +338,6 @@ def GetSummary(html):
 def GetThumb(html):
 	try:
 		thumb = html.xpath(".//meta[@name='twitter:image']//@content")[0]
-		Log ('Thumb: ' + thumb)
 	except:
 		thumb = R(ICON)
 	return thumb

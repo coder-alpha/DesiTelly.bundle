@@ -1,6 +1,8 @@
 import common, urllib2, redirect_follower, json, re
 import desitvbox, desitashan, desirulez
 
+CLIENT = SharedCodeService.client
+
 global_request_timeout = 10
 
 GOOD_RESPONSE_CODES = ['200','206']
@@ -139,6 +141,9 @@ def GetTvURLSource(url, referer, date='', key=None):
 		elif string.find('vmg.') != -1:
 			#Log('vmg')
 			url = html.xpath("//iframe[contains(@src,'vmg.')]/@src")[0]
+		elif string.find('irshare.') != -1:
+			#Log('irshare')
+			url = html.xpath("//iframe[contains(@src,'irshare.')]/@src")[0]
 		elif string.find('vidshare.') != -1:
 			#Log('vidshare')
 			url = html.xpath("//iframe[contains(@src,'vidshare.')]/@src")[0]
@@ -222,10 +227,10 @@ def GetTvURLSource(url, referer, date='', key=None):
 ####################################################################################################	
 def CheckURLSource(url, referer, key=None, string=None, html=None, stringMatch=False):
 
+	page = None
 	if string == None:
 		string = HTTP.Request(url=url, headers={'Referer': referer}).content
-		
-	page = None
+	
 	try:
 		if string.find('dailymotion.com') != -1:
 			#Log('dailymotion')
@@ -236,6 +241,14 @@ def CheckURLSource(url, referer, key=None, string=None, html=None, stringMatch=F
 			#Log('vmg')
 			page = HTTP.Request(url, headers={'Referer': referer}).content
 			if 'Content removed' in page or 'Content rejected' in page or 'This video got removed' in page or 'ERROR' in page:
+				url = 'disabled'
+		elif url.find('irshare.') != -1:
+			#Log('irshare : %s' % url)
+			try:
+				page, h, c, http_cookies = CLIENT.request(url, output='extended', timeout='20')
+				if '404 - NOT FOUND' in page:
+					url = 'disabled'
+			except:
 				url = 'disabled'
 		elif string.find('thevideobee.') != -1:
 			#Log('vmg')
